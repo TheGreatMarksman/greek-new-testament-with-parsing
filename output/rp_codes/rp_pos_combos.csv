@@ -1,0 +1,41 @@
+﻿pos,info_length,example_code,count
+Adjective,3,A-NPF,7864
+Adjective,4,A-ASM-S,815
+Adjective,6,A-NSM-ATT,2
+Adverb,0,ADV,3812
+Adverb,1,ADV-I,433
+Aramaism,0,ARAM,41
+Article,3,T-ASM,20288
+Conditional Conjunction,0,COND,863
+Conditional Conjunction,1,COND-K,13
+Conjunction,0,CONJ,16680
+Conjunction,1,CONJ-N,334
+Correlative Pronoun,3,Q-NSN,27
+Correlative or Interrogative Pronoun,3,K-APN,126
+Demonstrative Pronoun,3,D-APN,1764
+Demonstrative Pronoun,4,D-NPN-K,21
+Hebraism,0,HEB,191
+Indefinite Pronoun,3,X-ASN,535
+Interjection,0,INJ,63
+Interrogative Pronoun,3,I-NSM,605
+Noun,2,N-OI,18
+Noun,3,N-NSF,28784
+Noun,4,N-ASF-S,15
+Particle,0,PRT,1065
+Particle,1,PRT-N,2791
+Personal Pronoun,3,P-GSM,11386
+Personal Pronoun,4,P-1NS-K,71
+Possessive Pronoun,5,S-2SDSM,123
+Preposition,0,PREP,10687
+Reciprocal Pronoun,3,C-APM,99
+Reflexive Pronoun,4,F-2DPM,409
+Relative Pronoun,3,R-GSF,1561
+Relative Pronoun,6,R-GSN-ATT,6
+Verb,3,V-AAN,1808
+Verb,4,V-2AAN,518
+Verb,5,V-AAI-3S,15650
+Verb,6,V-PPP-NSM,9466
+Verb,7,V-2AAP-NSM,1127
+Verb,8,V-FAI-3S-ATT,91
+Verb,9,V-RAP-GSM-ATT,24
+Verb,10,V-2RAP-APM-ATT,1

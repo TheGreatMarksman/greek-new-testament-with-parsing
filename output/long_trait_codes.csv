@@ -1,0 +1,8 @@
+﻿id,trait_code,trait,origin_table
+1,PR,proper noun,description
+2,NU,numeral,description
+3,ATT,Attic Greek form,extra
+4,2F,Second Future,tense
+5,2A,Second Aorist,tense
+6,2R,Second Perfect,tense
+7,2L,Second Pluperfect,tense

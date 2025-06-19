@@ -1,0 +1,1056 @@
+﻿pos,code,info_length
+Adjective,A-NPF,3
+Adjective,A-GSN,3
+Adjective,A-NSM,3
+Adjective,A-NSN,3
+Adjective,A-GPM,3
+Adjective,A-NSF,3
+Adjective,A-APM,3
+Adjective,A-ASF,3
+Adjective,A-GSF,3
+Adjective,A-DPN,3
+Adjective,A-GSM,3
+Adjective,A-DSF,3
+Adjective,A-APF,3
+Adjective,A-ASM,3
+Adjective,A-DSN,3
+Adjective,A-NUI,3
+Adjective,A-DSM,3
+Adjective,A-ASN,3
+Adjective,A-APN,3
+Adjective,A-DPF,3
+Adjective,A-NPM,3
+Adjective,A-DPM,3
+Adjective,A-NPN,3
+Adjective,A-VSM,3
+Adjective,A-VPM,3
+Adjective,A-GPN,3
+Adjective,A-VSF,3
+Adjective,A-GPF,3
+Adjective,A-ASM-S,4
+Adjective,A-NSF-S,4
+Adjective,A-NSM-C,4
+Adjective,A-ASN-N,4
+Adjective,A-GPF-S,4
+Adjective,A-NSM-S,4
+Adjective,A-ASN-C,4
+Adjective,A-NSM-N,4
+Adjective,A-NSN-C,4
+Adjective,A-DSM-N,4
+Adjective,A-NSN-N,4
+Adjective,A-NPF-S,4
+Adjective,A-APN-C,4
+Adjective,A-NPN-S,4
+Adjective,A-GPN-S,4
+Adjective,A-GPM-C,4
+Adjective,A-ASM-N,4
+Adjective,A-NPM-S,4
+Adjective,A-GPM-S,4
+Adjective,A-DSM-S,4
+Adjective,A-DPN-S,4
+Adjective,A-NPM-C,4
+Adjective,A-DSN-S,4
+Adjective,A-APM-C,4
+Adjective,A-GSM-N,4
+Adjective,A-ASM-C,4
+Adjective,A-DSF-S,4
+Adjective,A-APF-C,4
+Adjective,A-DPM-C,4
+Adjective,A-NSF-C,4
+Adjective,A-GSF-S,4
+Adjective,A-GSM-S,4
+Adjective,A-ASF-N,4
+Adjective,A-DPM-S,4
+Adjective,A-DSN-N,4
+Adjective,A-VSM-S,4
+Adjective,A-GPN-C,4
+Adjective,A-ASN-S,4
+Adjective,A-ASF-S,4
+Adjective,A-GSN-N,4
+Adjective,A-ASF-C,4
+Adjective,A-DPF-S,4
+Adjective,A-VPM-C,4
+Adjective,A-GSN-S,4
+Adjective,A-APM-S,4
+Adjective,A-NPF-C,4
+Adjective,A-NSF-N,4
+Adjective,A-NPN-C,4
+Adjective,A-DSF-C,4
+Adjective,A-DSM-C,4
+Adjective,A-GSM-C,4
+Adjective,A-GSF-C,4
+Adjective,A-DPF-C,4
+Adjective,A-APN-S,4
+Adjective,A-DSN-C,4
+Adjective,A-NSN-S,4
+Adjective,A-APF-S,4
+Adjective,A-NSM-ATT,6
+Adverb,ADV,0
+Adverb,ADV-I,1
+Adverb,ADV-N,1
+Adverb,ADV-S,1
+Adverb,ADV-K,1
+Adverb,ADV-C,1
+Aramaism,ARAM,0
+Article,T-ASM,3
+Article,T-APM,3
+Article,T-GSF,3
+Article,T-NSM,3
+Article,T-GSM,3
+Article,T-ASF,3
+Article,T-NPF,3
+Article,T-NSF,3
+Article,T-DSM,3
+Article,T-NSN,3
+Article,T-ASN,3
+Article,T-GPF,3
+Article,T-GPM,3
+Article,T-DSF,3
+Article,T-NPM,3
+Article,T-DPM,3
+Article,T-GSN,3
+Article,T-DPN,3
+Article,T-APN,3
+Article,T-DPF,3
+Article,T-APF,3
+Article,T-GPN,3
+Article,T-DSN,3
+Article,T-NPN,3
+Conditional Conjunction,COND,0
+Conditional Conjunction,COND-K,1
+Conjunction,CONJ,0
+Conjunction,CONJ-N,1
+Correlative Pronoun,Q-NSN,3
+Correlative Pronoun,Q-DSN,3
+Correlative Pronoun,Q-APM,3
+Correlative Pronoun,Q-APF,3
+Correlative Pronoun,Q-APN,3
+Correlative Pronoun,Q-GPF,3
+Correlative Pronoun,Q-NSM,3
+Correlative Pronoun,Q-NPM,3
+Correlative Pronoun,Q-ASN,3
+Correlative Pronoun,Q-NPF,3
+Correlative Pronoun,Q-ASF,3
+Correlative or Interrogative Pronoun,K-APN,3
+Correlative or Interrogative Pronoun,K-ASM,3
+Correlative or Interrogative Pronoun,K-NPM,3
+Correlative or Interrogative Pronoun,K-APM,3
+Correlative or Interrogative Pronoun,K-ASN,3
+Correlative or Interrogative Pronoun,K-APF,3
+Correlative or Interrogative Pronoun,K-GSN,3
+Correlative or Interrogative Pronoun,K-NSN,3
+Correlative or Interrogative Pronoun,K-NPN,3
+Correlative or Interrogative Pronoun,K-NSM,3
+Correlative or Interrogative Pronoun,K-NPF,3
+Correlative or Interrogative Pronoun,K-DSN,3
+Demonstrative Pronoun,D-APN,3
+Demonstrative Pronoun,D-NSN,3
+Demonstrative Pronoun,D-DPF,3
+Demonstrative Pronoun,D-NSM,3
+Demonstrative Pronoun,D-GPM,3
+Demonstrative Pronoun,D-NPM,3
+Demonstrative Pronoun,D-GPF,3
+Demonstrative Pronoun,D-ASN,3
+Demonstrative Pronoun,D-GPN,3
+Demonstrative Pronoun,D-NPN,3
+Demonstrative Pronoun,D-DSF,3
+Demonstrative Pronoun,D-APM,3
+Demonstrative Pronoun,D-DSM,3
+Demonstrative Pronoun,D-ASF,3
+Demonstrative Pronoun,D-GSF,3
+Demonstrative Pronoun,D-NSF,3
+Demonstrative Pronoun,D-GSM,3
+Demonstrative Pronoun,D-DPM,3
+Demonstrative Pronoun,D-ASM,3
+Demonstrative Pronoun,D-APF,3
+Demonstrative Pronoun,D-DSN,3
+Demonstrative Pronoun,D-GSN,3
+Demonstrative Pronoun,D-NPF,3
+Demonstrative Pronoun,D-DPN,3
+Demonstrative Pronoun,D-NPN-K,4
+Demonstrative Pronoun,D-APN-K,4
+Demonstrative Pronoun,D-ASM-K,4
+Demonstrative Pronoun,D-NPM-K,4
+Demonstrative Pronoun,D-NSM-K,4
+Hebraism,HEB,0
+Indefinite Pronoun,X-ASN,3
+Indefinite Pronoun,X-ASM,3
+Indefinite Pronoun,X-NPM,3
+Indefinite Pronoun,X-NSM,3
+Indefinite Pronoun,X-DSM,3
+Indefinite Pronoun,X-NSN,3
+Indefinite Pronoun,X-NSF,3
+Indefinite Pronoun,X-APM,3
+Indefinite Pronoun,X-GSM,3
+Indefinite Pronoun,X-NPF,3
+Indefinite Pronoun,X-GPM,3
+Indefinite Pronoun,X-ASF,3
+Indefinite Pronoun,X-DSF,3
+Indefinite Pronoun,X-GSN,3
+Indefinite Pronoun,X-APF,3
+Indefinite Pronoun,X-GSF,3
+Indefinite Pronoun,X-APN,3
+Indefinite Pronoun,X-GPF,3
+Indefinite Pronoun,X-GPN,3
+Indefinite Pronoun,X-DPM,3
+Indefinite Pronoun,X-DSN,3
+Indefinite Pronoun,X-NPN,3
+Interjection,INJ,0
+Interrogative Pronoun,I-NSM,3
+Interrogative Pronoun,I-DSN,3
+Interrogative Pronoun,I-ASM,3
+Interrogative Pronoun,I-ASN,3
+Interrogative Pronoun,I-NSN,3
+Interrogative Pronoun,I-DSM,3
+Interrogative Pronoun,I-NSF,3
+Interrogative Pronoun,I-NPM,3
+Interrogative Pronoun,I-GPM,3
+Interrogative Pronoun,I-APF,3
+Interrogative Pronoun,I-DSF,3
+Interrogative Pronoun,I-GSM,3
+Interrogative Pronoun,I-GSF,3
+Interrogative Pronoun,I-APN,3
+Interrogative Pronoun,I-NPN,3
+Interrogative Pronoun,I-ASF,3
+Interrogative Pronoun,I-GSN,3
+Interrogative Pronoun,I-GPN,3
+Interrogative Pronoun,I-DPM,3
+Noun,N-OI,2
+Noun,N-LI,2
+Noun,N-NSF,3
+Noun,N-GSF,3
+Noun,N-GSM,3
+Noun,N-PRI,3
+Noun,N-ASM,3
+Noun,N-APM,3
+Noun,N-NSM,3
+Noun,N-ASF,3
+Noun,N-NPF,3
+Noun,N-DSF,3
+Noun,N-GSN,3
+Noun,N-ASN,3
+Noun,N-GPF,3
+Noun,N-DPF,3
+Noun,N-NPM,3
+Noun,N-APN,3
+Noun,N-VSF,3
+Noun,N-DPM,3
+Noun,N-NSN,3
+Noun,N-GPM,3
+Noun,N-DPN,3
+Noun,N-APF,3
+Noun,N-DSM,3
+Noun,N-VPN,3
+Noun,N-GPN,3
+Noun,N-DSN,3
+Noun,N-VSM,3
+Noun,N-NPN,3
+Noun,N-VSN,3
+Noun,N-VPM,3
+Noun,N-VPF,3
+Noun,N-ASF-S,4
+Noun,N-APF-S,4
+Noun,N-DPM-S,4
+Noun,N-ASM-S,4
+Noun,N-APN-S,4
+Noun,N-NSM-C,4
+Noun,N-NPM-S,4
+Particle,PRT,0
+Particle,PRT-N,1
+Particle,PRT-I,1
+Personal Pronoun,P-GSM,3
+Personal Pronoun,P-APM,3
+Personal Pronoun,P-GSF,3
+Personal Pronoun,P-ASF,3
+Personal Pronoun,P-DSM,3
+Personal Pronoun,P-2GS,3
+Personal Pronoun,P-DSF,3
+Personal Pronoun,P-NSM,3
+Personal Pronoun,P-GPM,3
+Personal Pronoun,P-1GP,3
+Personal Pronoun,P-2NS,3
+Personal Pronoun,P-1GS,3
+Personal Pronoun,P-1DS,3
+Personal Pronoun,P-GSN,3
+Personal Pronoun,P-2DS,3
+Personal Pronoun,P-ASN,3
+Personal Pronoun,P-ASM,3
+Personal Pronoun,P-DPM,3
+Personal Pronoun,P-2DP,3
+Personal Pronoun,P-1NS,3
+Personal Pronoun,P-2AP,3
+Personal Pronoun,P-1AS,3
+Personal Pronoun,P-1DP,3
+Personal Pronoun,P-2AS,3
+Personal Pronoun,P-GPF,3
+Personal Pronoun,P-NPM,3
+Personal Pronoun,P-2GP,3
+Personal Pronoun,P-2NP,3
+Personal Pronoun,P-1NP,3
+Personal Pronoun,P-1AP,3
+Personal Pronoun,P-APN,3
+Personal Pronoun,P-GPN,3
+Personal Pronoun,P-DPN,3
+Personal Pronoun,P-DSN,3
+Personal Pronoun,P-DPF,3
+Personal Pronoun,P-APF,3
+Personal Pronoun,P-NSF,3
+Personal Pronoun,P-NSN,3
+Personal Pronoun,P-NPN,3
+Personal Pronoun,P-1NS-K,4
+Personal Pronoun,P-1DS-K,4
+Personal Pronoun,P-1AS-K,4
+Possessive Pronoun,S-2SDSM,5
+Possessive Pronoun,S-2SDSN,5
+Possessive Pronoun,S-1SASN,5
+Possessive Pronoun,S-2SASN,5
+Possessive Pronoun,S-1SDPN,5
+Possessive Pronoun,S-1SNSN,5
+Possessive Pronoun,S-2SGSF,5
+Possessive Pronoun,S-2SNPM,5
+Possessive Pronoun,S-2SAPM,5
+Possessive Pronoun,S-1SAPM,5
+Possessive Pronoun,S-2PNSF,5
+Possessive Pronoun,S-2SAPN,5
+Possessive Pronoun,S-1SNPN,5
+Possessive Pronoun,S-2SNPN,5
+Possessive Pronoun,S-2PASN,5
+Possessive Pronoun,S-1SASF,5
+Possessive Pronoun,S-2SNSN,5
+Possessive Pronoun,S-1SNSF,5
+Possessive Pronoun,S-2SASF,5
+Possessive Pronoun,S-1SNSM,5
+Possessive Pronoun,S-2PNSM,5
+Possessive Pronoun,S-2PDSM,5
+Possessive Pronoun,S-1SDSM,5
+Possessive Pronoun,S-1SASM,5
+Possessive Pronoun,S-1SAPN,5
+Possessive Pronoun,S-1SGPN,5
+Possessive Pronoun,S-1SNPM,5
+Possessive Pronoun,S-1SAPF,5
+Possessive Pronoun,S-1SDSF,5
+Possessive Pronoun,S-2PASM,5
+Possessive Pronoun,S-1SGSN,5
+Possessive Pronoun,S-2SNSM,5
+Possessive Pronoun,S-1PDPF,5
+Possessive Pronoun,S-2SDSF,5
+Possessive Pronoun,S-1PGSF,5
+Possessive Pronoun,S-2PGSF,5
+Possessive Pronoun,S-1SDSN,5
+Possessive Pronoun,S-1SGSF,5
+Possessive Pronoun,S-2PDSN,5
+Possessive Pronoun,S-1PASF,5
+Possessive Pronoun,S-2PASF,5
+Possessive Pronoun,S-2PDSF,5
+Possessive Pronoun,S-1PDPM,5
+Possessive Pronoun,S-1PNPM,5
+Possessive Pronoun,S-1PNSF,5
+Possessive Pronoun,S-1PGPF,5
+Preposition,PREP,0
+Reciprocal Pronoun,C-APM,3
+Reciprocal Pronoun,C-GPM,3
+Reciprocal Pronoun,C-DPM,3
+Reciprocal Pronoun,C-DPN,3
+Reciprocal Pronoun,C-GPN,3
+Reflexive Pronoun,F-2DPM,4
+Reflexive Pronoun,F-2ASM,4
+Reflexive Pronoun,F-3GSF,4
+Reflexive Pronoun,F-1ASM,4
+Reflexive Pronoun,F-3GPM,4
+Reflexive Pronoun,F-3DPM,4
+Reflexive Pronoun,F-3DSF,4
+Reflexive Pronoun,F-3ASM,4
+Reflexive Pronoun,F-3GSN,4
+Reflexive Pronoun,F-3DSM,4
+Reflexive Pronoun,F-3APM,4
+Reflexive Pronoun,F-3GPF,4
+Reflexive Pronoun,F-2DPF,4
+Reflexive Pronoun,F-2GPM,4
+Reflexive Pronoun,F-3ASF,4
+Reflexive Pronoun,F-3GSM,4
+Reflexive Pronoun,F-2APM,4
+Reflexive Pronoun,F-3APF,4
+Reflexive Pronoun,F-2APF,4
+Reflexive Pronoun,F-2GSM,4
+Reflexive Pronoun,F-1GSM,4
+Reflexive Pronoun,F-2DSM,4
+Reflexive Pronoun,F-1DSM,4
+Reflexive Pronoun,F-1APM,4
+Reflexive Pronoun,F-1DPM,4
+Reflexive Pronoun,F-1GPM,4
+Reflexive Pronoun,F-2APN,4
+Reflexive Pronoun,F-3GPN,4
+Relative Pronoun,R-GSF,3
+Relative Pronoun,R-NSN,3
+Relative Pronoun,R-GSM,3
+Relative Pronoun,R-NSM,3
+Relative Pronoun,R-ASM,3
+Relative Pronoun,R-DSM,3
+Relative Pronoun,R-GPN,3
+Relative Pronoun,R-DSN,3
+Relative Pronoun,R-NPM,3
+Relative Pronoun,R-ASN,3
+Relative Pronoun,R-ASF,3
+Relative Pronoun,R-APN,3
+Relative Pronoun,R-DPF,3
+Relative Pronoun,R-APM,3
+Relative Pronoun,R-NPN,3
+Relative Pronoun,R-GSN,3
+Relative Pronoun,R-DPM,3
+Relative Pronoun,R-NSF,3
+Relative Pronoun,R-DSF,3
+Relative Pronoun,R-NPF,3
+Relative Pronoun,R-GPM,3
+Relative Pronoun,R-DPN,3
+Relative Pronoun,R-GPF,3
+Relative Pronoun,R-APF,3
+Relative Pronoun,R-GSN-ATT,6
+Verb,V-AAN,3
+Verb,V-PAN,3
+Verb,V-APN,3
+Verb,V-PPN,3
+Verb,V-PNN,3
+Verb,V-AMN,3
+Verb,V-ADN,3
+Verb,V-AON,3
+Verb,V-PMN,3
+Verb,V-RPN,3
+Verb,V-PEN,3
+Verb,V-RAN,3
+Verb,V-FAN,3
+Verb,V-FDN,3
+Verb,V-2AAN,4
+Verb,V-2APN,4
+Verb,V-2ADN,4
+Verb,V-2AMN,4
+Verb,V-2RAN,4
+Verb,V-2AON,4
+Verb,V-AAI-3S,5
+Verb,V-API-3S,5
+Verb,V-IAI-3S,5
+Verb,V-AOI-3S,5
+Verb,V-AOS-2S,5
+Verb,V-PAI-3S,5
+Verb,V-FDI-3S,5
+Verb,V-FAI-2S,5
+Verb,V-FAI-3S,5
+Verb,V-APS-3S,5
+Verb,V-FAI-3P,5
+Verb,V-INI-3S,5
+Verb,V-PPI-3S,5
+Verb,V-RPI-3S,5
+Verb,V-PAI-2S,5
+Verb,V-AAM-2P,5
+Verb,V-AAS-1S,5
+Verb,V-AOI-3P,5
+Verb,V-AAI-3P,5
+Verb,V-PEI-3S,5
+Verb,V-PAM-2S,5
+Verb,V-AAI-1S,5
+Verb,V-PAI-3P,5
+Verb,V-PNM-2S,5
+Verb,V-RAI-3P,5
+Verb,V-FPI-3S,5
+Verb,V-PNI-3S,5
+Verb,V-PAM-2P,5
+Verb,V-RAI-3S,5
+Verb,V-IPI-3P,5
+Verb,V-AAS-2P,5
+Verb,V-PAI-1P,5
+Verb,V-PAI-1S,5
+Verb,V-PNI-2S,5
+Verb,V-API-3P,5
+Verb,V-FNI-3S,5
+Verb,V-AAS-2S,5
+Verb,V-FAI-1S,5
+Verb,V-IAI-3P,5
+Verb,V-AMI-3S,5
+Verb,V-FPI-3P,5
+Verb,V-FDI-3P,5
+Verb,V-PAI-2P,5
+Verb,V-AAS-3P,5
+Verb,V-PNM-2P,5
+Verb,V-AAM-3S,5
+Verb,V-AAS-3S,5
+Verb,V-AAI-2P,5
+Verb,V-PAS-2S,5
+Verb,V-APS-2S,5
+Verb,V-FPI-2S,5
+Verb,V-AAM-2S,5
+Verb,V-PAM-3S,5
+Verb,V-ADS-2P,5
+Verb,V-FDI-2P,5
+Verb,V-APS-3P,5
+Verb,V-PAS-3S,5
+Verb,V-PNS-2S,5
+Verb,V-FDI-2S,5
+Verb,V-ADM-2S,5
+Verb,V-APS-2P,5
+Verb,V-APM-3S,5
+Verb,V-AOM-3S,5
+Verb,V-PAS-2P,5
+Verb,V-AMM-2S,5
+Verb,V-PNI-2P,5
+Verb,V-AMS-2P,5
+Verb,V-FPI-2P,5
+Verb,V-FAI-2P,5
+Verb,V-RAI-2P,5
+Verb,V-PAS-3P,5
+Verb,V-PNI-3P,5
+Verb,V-AAI-1P,5
+Verb,V-LPI-3S,5
+Verb,V-ADI-3S,5
+Verb,V-APM-2S,5
+Verb,V-AOM-2S,5
+Verb,V-AAI-2S,5
+Verb,V-PMI-1P,5
+Verb,V-RPI-3P,5
+Verb,V-RAS-2P,5
+Verb,V-INI-3P,5
+Verb,V-PPI-3P,5
+Verb,V-FMI-3P,5
+Verb,V-AMS-1S,5
+Verb,V-FPI-1S,5
+Verb,V-PNI-1S,5
+Verb,V-AOM-2P,5
+Verb,V-ADM-2P,5
+Verb,V-ADS-3S,5
+Verb,V-FDI-1S,5
+Verb,V-ADI-2P,5
+Verb,V-AMI-2P,5
+Verb,V-PMI-1S,5
+Verb,V-PNS-3S,5
+Verb,V-AMI-3P,5
+Verb,V-LAI-2P,5
+Verb,V-IMI-3P,5
+Verb,V-ADI-3P,5
+Verb,V-LAI-3P,5
+Verb,V-LAI-3S,5
+Verb,V-FAI-1P,5
+Verb,V-AMS-3S,5
+Verb,V-AMS-3P,5
+Verb,V-PMI-3P,5
+Verb,V-RAI-2S,5
+Verb,V-FNI-3P,5
+Verb,V-ADM-3S,5
+Verb,V-ADS-3P,5
+Verb,V-AAS-1P,5
+Verb,V-APM-2P,5
+Verb,V-PAS-1S,5
+Verb,V-AMI-1S,5
+Verb,V-FMI-3S,5
+Verb,V-PMI-2P,5
+Verb,V-PPI-1S,5
+Verb,V-PNI-1P,5
+Verb,V-AMI-2S,5
+Verb,V-RAI-1P,5
+Verb,V-AOI-2P,5
+Verb,V-PPI-2P,5
+Verb,V-PEI-3P,5
+Verb,V-IAI-1P,5
+Verb,V-PPM-2P,5
+Verb,V-PAM-3P,5
+Verb,V-RAI-1S,5
+Verb,V-IAI-2S,5
+Verb,V-IMI-1S,5
+Verb,V-FOI-3P,5
+Verb,V-FOI-3S,5
+Verb,V-ADS-1S,5
+Verb,V-PMM-2P,5
+Verb,V-PEM-2P,5
+Verb,V-PAS-1P,5
+Verb,V-INI-1S,5
+Verb,V-API-1P,5
+Verb,V-ADI-1S,5
+Verb,V-PPS-3S,5
+Verb,V-RPM-2S,5
+Verb,V-IMI-3S,5
+Verb,V-FMI-1S,5
+Verb,V-AOS-3S,5
+Verb,V-IEI-3S,5
+Verb,V-INI-2P,5
+Verb,V-IPI-3S,5
+Verb,V-ADI-2S,5
+Verb,V-PPS-2P,5
+Verb,V-ANI-3P,5
+Verb,V-AOS-3P,5
+Verb,V-API-2S,5
+Verb,V-PAO-3S,5
+Verb,V-IAI-2P,5
+Verb,V-RPI-1S,5
+Verb,V-AAO-3P,5
+Verb,V-PPM-2S,5
+Verb,V-PMI-3S,5
+Verb,V-PEM-2S,5
+Verb,V-AOI-1S,5
+Verb,V-PNS-2P,5
+Verb,V-PNS-3P,5
+Verb,V-IAI-1S,5
+Verb,V-PPI-2S,5
+Verb,V-AOS-2P,5
+Verb,V-PMM-2S,5
+Verb,V-FMI-2P,5
+Verb,V-RPI-2S,5
+Verb,V-FMI-2S,5
+Verb,V-APS-1P,5
+Verb,V-APS-1S,5
+Verb,V-AAM-3P,5
+Verb,V-PMS-3S,5
+Verb,V-PNM-3P,5
+Verb,V-ADI-1P,5
+Verb,V-RNI-1S,5
+Verb,V-IDI-3P,5
+Verb,V-API-2P,5
+Verb,V-PNS-1P,5
+Verb,V-FDI-1P,5
+Verb,V-PNM-3S,5
+Verb,V-RPI-2P,5
+Verb,V-RPI-1P,5
+Verb,V-LMI-3P,5
+Verb,V-AMS-2S,5
+Verb,V-PPM-3S,5
+Verb,V-AOS-1S,5
+Verb,V-PPI-1P,5
+Verb,V-FMI-1P,5
+Verb,V-RNI-3S,5
+Verb,V-PNO-1S,5
+Verb,V-INI-2S,5
+Verb,V-API-1S,5
+Verb,V-AMI-1P,5
+Verb,V-RPM-2P,5
+Verb,V-ADS-1P,5
+Verb,V-INI-1P,5
+Verb,V-PAO-3P,5
+Verb,V-RMI-2S,5
+Verb,V-PNO-3S,5
+Verb,V-ADO-1S,5
+Verb,V-LDI-3S,5
+Verb,V-PNO-3P,5
+Verb,V-IPI-1P,5
+Verb,V-FPI-1P,5
+Verb,V-AOI-1P,5
+Verb,V-APM-3P,5
+Verb,V-PMM-3S,5
+Verb,V-AMS-1P,5
+Verb,V-AMM-2P,5
+Verb,V-AAO-3S,5
+Verb,V-IPI-1S,5
+Verb,V-PNS-1S,5
+Verb,V-RAS-1P,5
+Verb,V-PMS-1S,5
+Verb,V-AMM-3S,5
+Verb,V-IPI-2P,5
+Verb,V-RAS-1S,5
+Verb,V-PPS-3P,5
+Verb,V-ANI-3S,5
+Verb,V-PPS-1S,5
+Verb,V-PEI-2P,5
+Verb,V-ADS-2S,5
+Verb,V-APO-3S,5
+Verb,V-PMS-2S,5
+Verb,V-PPM-3P,5
+Verb,V-RAS-2S,5
+Verb,V-AOO-3S,5
+Verb,V-AOS-1P,5
+Verb,V-PPS-1P,5
+Verb,V-FOI-1S,5
+Verb,V-ADM-3P,5
+Verb,V-PAO-2P,5
+Verb,V-RNI-1P,5
+Verb,V-PMS-1P,5
+Verb,V-PPP-NSM,6
+Verb,V-APP-GSF,6
+Verb,V-PAP-NSF,6
+Verb,V-PAP-NSM,6
+Verb,V-AOP-GSM,6
+Verb,V-2AMM-2S,6
+Verb,V-2API-3S,6
+Verb,V-APP-NSN,6
+Verb,V-2RAI-3S,6
+Verb,V-PAP-GSM,6
+Verb,V-PPP-NSN,6
+Verb,V-APP-NSM,6
+Verb,V-2AAI-3S,6
+Verb,V-APP-GSM,6
+Verb,V-2ADI-3P,6
+Verb,V-PAP-NPM,6
+Verb,V-2AAI-1P,6
+Verb,V-AAP-NSM,6
+Verb,V-2AAI-3P,6
+Verb,V-PNP-NSM,6
+Verb,V-PEP-GSM,6
+Verb,V-AOP-NPM,6
+Verb,V-2AAS-2P,6
+Verb,V-AAP-NPM,6
+Verb,V-2AOI-3P,6
+Verb,V-APP-NPM,6
+Verb,V-AAP-GPM,6
+Verb,V-2AAM-2S,6
+Verb,V-2AAS-1S,6
+Verb,V-AAP-GSM,6
+Verb,V-PPP-ASF,6
+Verb,V-PMP-NPM,6
+Verb,V-PNP-APM,6
+Verb,V-PAP-GSF,6
+Verb,V-PAP-NSN,6
+Verb,V-AOP-NSM,6
+Verb,V-PAP-ASN,6
+Verb,V-PNP-ASN,6
+Verb,V-2ADS-3P,6
+Verb,V-PNP-DSN,6
+Verb,V-PNP-DPM,6
+Verb,V-PPP-ASM,6
+Verb,V-PAP-APM,6
+Verb,V-PPP-APM,6
+Verb,V-RPP-NPM,6
+Verb,V-2AAS-3P,6
+Verb,V-PNP-NPM,6
+Verb,V-PNP-NSF,6
+Verb,V-2AAI-1S,6
+Verb,V-2AAS-3S,6
+Verb,V-2ADS-3S,6
+Verb,V-2APM-2S,6
+Verb,V-2AAS-2S,6
+Verb,V-2AMS-3S,6
+Verb,V-2AAM-3S,6
+Verb,V-RPP-ASF,6
+Verb,V-PAP-DSM,6
+Verb,V-PAP-ASM,6
+Verb,V-2APS-2S,6
+Verb,V-PAP-DPM,6
+Verb,V-PAP-GPM,6
+Verb,V-2ADS-2P,6
+Verb,V-RAP-NPM,6
+Verb,V-2APS-3P,6
+Verb,V-2AAM-2P,6
+Verb,V-2AMI-3S,6
+Verb,V-2AAS-1P,6
+Verb,V-2AMS-1P,6
+Verb,V-2FPI-3S,6
+Verb,V-RPP-NSF,6
+Verb,V-2ADI-3S,6
+Verb,V-PAP-ASF,6
+Verb,V-2AAI-2S,6
+Verb,V-PPP-NSF,6
+Verb,V-PNP-GPM,6
+Verb,V-RPP-ASM,6
+Verb,V-PNP-ASM,6
+Verb,V-PNP-GSM,6
+Verb,V-APP-GSN,6
+Verb,V-PAP-NPN,6
+Verb,V-ADP-NSM,6
+Verb,V-2AAI-2P,6
+Verb,V-2APM-3S,6
+Verb,V-PPP-NPM,6
+Verb,V-RPP-NSN,6
+Verb,V-RPP-NPF,6
+Verb,V-AAP-ASM,6
+Verb,V-PNP-DPN,6
+Verb,V-PAP-DPN,6
+Verb,V-APP-NSF,6
+Verb,V-PPP-ASN,6
+Verb,V-RAP-NSM,6
+Verb,V-RPP-APN,6
+Verb,V-RPP-DSM,6
+Verb,V-APP-DSF,6
+Verb,V-PPP-GPN,6
+Verb,V-AMP-NSM,6
+Verb,V-PNP-NSN,6
+Verb,V-PNP-NPN,6
+Verb,V-2API-1S,6
+Verb,V-PAP-GPN,6
+Verb,V-PPP-GPM,6
+Verb,V-2APS-2P,6
+Verb,V-RPP-DPN,6
+Verb,V-RPP-NPN,6
+Verb,V-AMP-GSM,6
+Verb,V-PAP-APN,6
+Verb,V-RAP-APM,6
+Verb,V-AAP-DPM,6
+Verb,V-RPP-NSM,6
+Verb,V-2FPI-3P,6
+Verb,V-PAP-DSN,6
+Verb,V-RPP-APM,6
+Verb,V-RPP-DPM,6
+Verb,V-RMP-ASM,6
+Verb,V-APP-ASN,6
+Verb,V-RPP-GPM,6
+Verb,V-AAP-DSM,6
+Verb,V-PNP-DSM,6
+Verb,V-PAP-DPF,6
+Verb,V-PAP-NPF,6
+Verb,V-2LAI-3S,6
+Verb,V-PNP-GPF,6
+Verb,V-2LAI-2S,6
+Verb,V-RPP-ASN,6
+Verb,V-PPP-GSM,6
+Verb,V-RPP-GSM,6
+Verb,V-RAP-GPM,6
+Verb,V-FAP-NSM,6
+Verb,V-PNP-NPF,6
+Verb,V-PAP-DSF,6
+Verb,V-AOP-NPF,6
+Verb,V-RMP-NSM,6
+Verb,V-AAP-NSN,6
+Verb,V-2LAI-3P,6
+Verb,V-PPP-APF,6
+Verb,V-2RAI-1S,6
+Verb,V-2APS-3S,6
+Verb,V-RAP-ASM,6
+Verb,V-AAP-NSF,6
+Verb,V-AAP-ASF,6
+Verb,V-AOP-NSF,6
+Verb,V-RAP-NSF,6
+Verb,V-ADP-GSF,6
+Verb,V-AAP-GSF,6
+Verb,V-AMP-NPM,6
+Verb,V-2AAO-3S,6
+Verb,V-PAP-GSN,6
+Verb,V-2FPI-2P,6
+Verb,V-PNP-APN,6
+Verb,V-PMP-NSM,6
+Verb,V-PMP-ASM,6
+Verb,V-RAP-DPM,6
+Verb,V-AAP-NPF,6
+Verb,V-ADP-DPM,6
+Verb,V-RPP-GPN,6
+Verb,V-RAP-DSM,6
+Verb,V-2FOI-3P,6
+Verb,V-PPP-DSF,6
+Verb,V-2ADO-3S,6
+Verb,V-2AMI-3P,6
+Verb,V-APP-APM,6
+Verb,V-RPP-DSF,6
+Verb,V-APP-GPN,6
+Verb,V-PPP-DPN,6
+Verb,V-2API-3P,6
+Verb,V-2LAI-2P,6
+Verb,V-APP-GPF,6
+Verb,V-RAP-APN,6
+Verb,V-2AOM-2P,6
+Verb,V-2RAI-2P,6
+Verb,V-PPP-GSF,6
+Verb,V-2AMM-2P,6
+Verb,V-PPP-APN,6
+Verb,V-APP-ASM,6
+Verb,V-2FAI-1S,6
+Verb,V-2ADI-1S,6
+Verb,V-2RAI-3P,6
+Verb,V-2ADI-2P,6
+Verb,V-APP-APN,6
+Verb,V-2ADI-2S,6
+Verb,V-PNP-ASF,6
+Verb,V-AAP-APM,6
+Verb,V-2FDI-3P,6
+Verb,V-PMP-GSM,6
+Verb,V-PNP-GPN,6
+Verb,V-PMP-GPN,6
+Verb,V-2ADM-3S,6
+Verb,V-FDP-ASN,6
+Verb,V-2AOI-3S,6
+Verb,V-APP-GPM,6
+Verb,V-RNP-NSM,6
+Verb,V-PAP-GPF,6
+Verb,V-RAP-GPN,6
+Verb,V-RAN-ATT,6
+Verb,V-AMP-NSN,6
+Verb,V-2LAI-1S,6
+Verb,V-2RAI-2S,6
+Verb,V-PNP-GSN,6
+Verb,V-AAP-APN,6
+Verb,V-PMP-ASF,6
+Verb,V-APP-ASF,6
+Verb,V-2AMS-3P,6
+Verb,V-RAP-GSM,6
+Verb,V-ADP-NPM,6
+Verb,V-2AOI-2P,6
+Verb,V-2FOI-3S,6
+Verb,V-RPP-GPF,6
+Verb,V-ANP-NSM,6
+Verb,V-PPP-GSN,6
+Verb,V-PEP-NPF,6
+Verb,V-RAP-DSN,6
+Verb,V-AOP-GPM,6
+Verb,V-RAP-GSF,6
+Verb,V-2AMI-2S,6
+Verb,V-2AMI-2P,6
+Verb,V-PPP-DSM,6
+Verb,V-PMP-DSM,6
+Verb,V-RAP-NSN,6
+Verb,V-PMP-APM,6
+Verb,V-PPP-NPF,6
+Verb,V-PMP-NPF,6
+Verb,V-AMP-ASN,6
+Verb,V-PNP-APF,6
+Verb,V-RNP-DPF,6
+Verb,V-RAP-ASF,6
+Verb,V-AMP-APM,6
+Verb,V-RPP-APF,6
+Verb,V-2AAM-3P,6
+Verb,V-2AAO-3P,6
+Verb,V-PMP-GPM,6
+Verb,V-AOP-NSN,6
+Verb,V-FAP-APN,6
+Verb,V-2API-1P,6
+Verb,V-RPP-VSM,6
+Verb,V-2AMI-1S,6
+Verb,V-AAP-ASN,6
+Verb,V-AOP-ASM,6
+Verb,V-PMP-ASN,6
+Verb,V-PPP-DPM,6
+Verb,V-PPP-NPN,6
+Verb,V-PMP-DPM,6
+Verb,V-2RAI-1P,6
+Verb,V-APP-DSM,6
+Verb,V-RAP-NPN,6
+Verb,V-2FPI-2S,6
+Verb,V-2API-2S,6
+Verb,V-2AMS-1S,6
+Verb,V-RPP-GSN,6
+Verb,V-PAP-APF,6
+Verb,V-PEP-DPM,6
+Verb,V-ADP-ASM,6
+Verb,V-2FMI-3S,6
+Verb,V-2ADS-1S,6
+Verb,V-2FPI-1P,6
+Verb,V-PMP-GSF,6
+Verb,V-RPP-GSF,6
+Verb,V-RPP-DSN,6
+Verb,V-2AMI-1P,6
+Verb,V-PEP-NPM,6
+Verb,V-2APM-2P,6
+Verb,V-2ADS-1P,6
+Verb,V-2AOI-1P,6
+Verb,V-2APS-1P,6
+Verb,V-PMP-NSF,6
+Verb,V-2FOI-1S,6
+Verb,V-2AOS-2P,6
+Verb,V-2AOI-1S,6
+Verb,V-PMP-NSN,6
+Verb,V-PNP-GSF,6
+Verb,V-POP-NPM,6
+Verb,V-PNP-DPF,6
+Verb,V-2ADM-2S,6
+Verb,V-RNP-NPM,6
+Verb,V-2ADO-1S,6
+Verb,V-APP-DPN,6
+Verb,V-FPP-GPN,6
+Verb,V-AOP-GPN,6
+Verb,V-ADP-APM,6
+Verb,V-AOP-APM,6
+Verb,V-PEP-GPN,6
+Verb,V-APP-NPN,6
+Verb,V-ADP-NSF,6
+Verb,V-PPP-DSN,6
+Verb,V-FAP-NPM,6
+Verb,V-PMP-GPF,6
+Verb,V-PEP-NSF,6
+Verb,V-PMP-GSN,6
+Verb,V-AMP-GPM,6
+Verb,V-2API-2P,6
+Verb,V-AAP-DPN,6
+Verb,V-RNP-APM,6
+Verb,V-PNP-DSF,6
+Verb,V-FDP-NPM,6
+Verb,V-ANP-NSN,6
+Verb,V-PDP-NPM,6
+Verb,V-AMP-NSF,6
+Verb,V-2AMS-2S,6
+Verb,V-RAP-ASN,6
+Verb,V-RAP-NPF,6
+Verb,V-RMP-NPM,6
+Verb,V-2AAP-NSM,7
+Verb,V-2AAP-NPM,7
+Verb,V-2APP-NPM,7
+Verb,V-2AAP-DSM,7
+Verb,V-2ADP-GSF,7
+Verb,V-2AAP-ASM,7
+Verb,V-2AAP-NSF,7
+Verb,V-2APP-NSM,7
+Verb,V-2RAP-APN,7
+Verb,V-2ADP-NPF,7
+Verb,V-2AAP-NSN,7
+Verb,V-2AAP-NPN,7
+Verb,V-2RPP-ASN,7
+Verb,V-2AAP-DSF,7
+Verb,V-2AAP-GPM,7
+Verb,V-2AMP-NSM,7
+Verb,V-2RAP-ASN,7
+Verb,V-2ADP-APN,7
+Verb,V-2AAP-GSM,7
+Verb,V-2AAP-NPF,7
+Verb,V-2RAP-NSM,7
+Verb,V-2ADP-GSM,7
+Verb,V-2RPP-ASM,7
+Verb,V-2RAP-NSN,7
+Verb,V-2AAP-ASF,7
+Verb,V-2ADP-GSN,7
+Verb,V-2AAP-GSF,7
+Verb,V-2ADP-NSM,7
+Verb,V-2RAP-ASF,7
+Verb,V-2RAP-APM,7
+Verb,V-2ADP-DPM,7
+Verb,V-2ADP-NPM,7
+Verb,V-2RAP-NSF,7
+Verb,V-2AAP-APM,7
+Verb,V-2RAP-NPM,7
+Verb,V-2APP-NSN,7
+Verb,V-2APP-NPF,7
+Verb,V-2AAP-GSN,7
+Verb,V-2AMP-GSM,7
+Verb,V-2ADP-ASM,7
+Verb,V-2ADP-APM,7
+Verb,V-2ADP-ASF,7
+Verb,V-2ADP-ASN,7
+Verb,V-2RAP-NPF,7
+Verb,V-2ADP-GPF,7
+Verb,V-2RAP-ASM,7
+Verb,V-2APP-NSF,7
+Verb,V-2AAP-DPM,7
+Verb,V-2AMP-NPM,7
+Verb,V-2RAP-DSN,7
+Verb,V-2AAP-DPF,7
+Verb,V-2AAP-APF,7
+Verb,V-2ADP-GPM,7
+Verb,V-2RAP-GPN,7
+Verb,V-2AAP-ASN,7
+Verb,V-2APP-ASM,7
+Verb,V-2APP-DSN,7
+Verb,V-2APP-GPM,7
+Verb,V-FAI-3S-ATT,8
+Verb,V-FAI-3P-ATT,8
+Verb,V-AOI-3P-ATT,8
+Verb,V-AOI-1P-ATT,8
+Verb,V-PAI-3P-ATT,8
+Verb,V-INI-3S-ATT,8
+Verb,V-FDI-2S-ATT,8
+Verb,V-AOI-3S-ATT,8
+Verb,V-LAI-3S-ATT,8
+Verb,V-RAI-3S-ATT,8
+Verb,V-INI-3P-ATT,8
+Verb,V-RAI-3P-ATT,8
+Verb,V-RAI-1S-ATT,8
+Verb,V-RAI-1P-ATT,8
+Verb,V-RAI-2S-ATT,8
+Verb,V-RAI-2P-ATT,8
+Verb,V-IAI-3P-ATT,8
+Verb,V-LAI-3P-ATT,8
+Verb,V-FAI-1S-ATT,8
+Verb,V-AOI-2P-ATT,8
+Verb,V-PNI-2S-ATT,8
+Verb,V-IAI-3S-ATT,8
+Verb,V-AOI-1S-ATT,8
+Verb,V-FDI-3S-ATT,8
+Verb,V-FDI-2P-ATT,8
+Verb,V-RAP-GSM-ATT,9
+Verb,V-2AAM-2S-ATT,9
+Verb,V-2AAI-3P-ATT,9
+Verb,V-RPP-ASN-ATT,9
+Verb,V-2RAI-1P-ATT,9
+Verb,V-RAP-NPM-ATT,9
+Verb,V-2RAI-2P-ATT,9
+Verb,V-RAP-NSM-ATT,9
+Verb,V-RPP-NSN-ATT,9
+Verb,V-2RAI-3P-ATT,9
+Verb,V-2RAI-3S-ATT,9
+Verb,V-2RAP-APM-ATT,10

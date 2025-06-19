@@ -1,0 +1,3 @@
+word_info: id primary, word unique, count, pos, gender, number, case
+word_instances: id primary, info_id references word_info(id), book, chapter, verse, (eventually) english_translation, 
+articles: P.O.S, Gender, Number, Case, Morphology
