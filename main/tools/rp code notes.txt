@@ -1,4 +1,4 @@
-- besides pos abbreviations, the only multi-letter codes for a given trait are 
+- some words have multiple possible moods, genders, cases
 
 # Adjective
     #   A - Case (N Nominative, G Genitive, D Dative, A Accusative) Number (S Singular P Plural) Gender (M Masculine, F Feminine, N Neuter) (may have) - type (should have positive [big] but instead have N negative, C comparative [bigger], S superlative [biggest])

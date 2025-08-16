@@ -1,0 +1,2 @@
+03.16 tines 5100 {X-NPM} gar 1063 {CONJ} akousantes 191 {V-AAP-NPM} parepikranan 3893 {V-AAI-3P} all 235 {CONJ} ou 3756 {PRT-N} pantes 3956 {A-NPM} oi 3588 {T-NPM} ecelqontes 1831 {V-2AAP-NPM} ec 1537 {PREP} aiguptou 125 {N-GSF} dia 1223 {PREP} mwusews 3475 {N-GSM}
+03.17 tisin 5101 {I-DPM} de 1161 {CONJ} proswxqisen 4360 {V-AAI-3S} tessarakonta 5062 {A-NUI} eth 2094 {N-APN} ouxi 3780 {PRT-I} tois 3588 {T-DPM} amarthsasin 264 {V-AAP-DPM} wn 3739 {R-GPM} ta 3588 {T-NPN} kwla 2966 {N-NPN} epesen 4098 {V-2AAI-3S} en 1722 {PREP} th 3588 {T-DSF} erhmw 2048 {A-DSF}
