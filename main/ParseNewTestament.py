@@ -865,6 +865,7 @@ def make_parsed_word_info(cursor):
     # pos means part of speech, number means singular, plural etc.
     cursor.execute('''CREATE TABLE IF NOT EXISTS parsed_word_info (
                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                   instance_id INTEGER,
                    word VARCHAR(45),
                    unicode VARCHAR(45),
                    std_poly_form VARCHAR(45),
@@ -887,7 +888,8 @@ def make_parsed_word_info(cursor):
                    rp_indeclinable VARCHAR(45),
                    rp_why_indeclinable VARCHAR(45),
                    rp_kai_crasis VARCHAR(45),
-                   rp_attic_greek_form VARCHAR(45)
+                   rp_attic_greek_form VARCHAR(45),
+                   FOREIGN KEY (instance_id) REFERENCES word_instances (id)
                    )'''
     )
 
@@ -1014,25 +1016,27 @@ def make_parsed_word_info(cursor):
                     is_proper_noun = False
                     if rp_dict["why_indeclinable"] == "proper noun":
                         is_proper_noun = True
+                    instance_id = None
                     std_poly_form = None
                     std_poly_LC = None
 
-                    cursor.execute("SELECT unicode FROM word_instances WHERE book = ? AND chapter = ? AND verse = ? AND word_index = ?", (book, chapter, verse, word_index))
+                    cursor.execute("SELECT id, unicode FROM word_instances WHERE book = ? AND chapter = ? AND verse = ? AND word_index = ?", (book, chapter, verse, word_index))
                     instance_row = cursor.fetchone()
                     if instance_row:
-                        std_poly_form = to_std_poly_form(instance_row[0], is_proper_noun, diacritic_map)
+                        instance_id = instance_row[0]
+                        std_poly_form = to_std_poly_form(instance_row[1], is_proper_noun, diacritic_map)
                         std_poly_LC = std_poly_form.lower()
                         test_poly = simplify_unicode(std_poly_LC, diacritic_list)
                         if unicode != test_poly:
                             std_poly_LC = "!!!"
 
                     cursor.execute('''
-                                    INSERT INTO parsed_word_info (word, unicode, std_poly_form, std_poly_LC, str_num, rp_code, rp_alt_code, rp_pos, rp_gender, rp_alt_gender, rp_number,
+                                    INSERT INTO parsed_word_info (instance_id, word, unicode, std_poly_form, std_poly_LC, str_num, rp_code, rp_alt_code, rp_pos, rp_gender, rp_alt_gender, rp_number,
                                    rp_word_case, rp_alt_word_case, rp_tense, rp_type, rp_voice, rp_mood, rp_alt_mood, rp_person, rp_indeclinable, rp_why_indeclinable, rp_kai_crasis,
                                    rp_attic_greek_form) 
-                                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) 
+                                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) 
                                     ''',
-                                    (word, unicode, std_poly_form, std_poly_LC, str_num, code, alt_code, rp_pos, rp_dict["gender"], rp_dict["alt_gender"], rp_dict["number"], rp_dict["word_case"],
+                                    (instance_id, word, unicode, std_poly_form, std_poly_LC, str_num, code, alt_code, rp_pos, rp_dict["gender"], rp_dict["alt_gender"], rp_dict["number"], rp_dict["word_case"],
                                      rp_dict["alt_word_case"], rp_dict["tense"], rp_dict["type"], rp_dict["voice"], rp_dict["mood"], rp_dict["alt_mood"], rp_dict["person"],
                                      rp_dict["indeclinable"], rp_dict["why_indeclinable"], rp_dict["kai_crasis"], rp_dict["attic_greek_form"])
                                 )
@@ -1049,6 +1053,53 @@ def make_parsed_word_info(cursor):
 def test_parsed_word_info(conn):
     df = pd.read_sql_query('SELECT * FROM parsed_word_info', conn)
     df.to_csv(Path(__file__).parent / ".." / "output" / "parsed_word_info.csv", index=False, encoding="utf-8-sig")
+
+def make_std_poly_info(cursor):
+    cursor.execute('DROP TABLE IF EXISTS std_poly_info')
+
+    cursor.execute('''CREATE TABLE IF NOT EXISTS std_poly_info (
+                   id INTEGER PRIMARY KEY AUTOINCREMENT,
+                   std_poly_form VARCHAR(45) UNIQUE,
+                   std_poly_LC VARCHAR(45),
+                   str_num_1 INTEGER,
+                   str_num_2 INTEGER,
+                   str_num_3 INTEGER
+                   )''')
+
+    cursor.execute("SELECT DISTINCT std_poly_form, str_num FROM parsed_word_info")
+
+    rows = cursor.fetchall()
+
+    used_indexes = []
+    for i in range(len(rows)):
+        if i in used_indexes:
+            continue
+        std_poly_form = rows[i][0]
+        std_poly_LC = rows[i][0].lower()
+        str_nums = []
+        str_nums.append(rows[i][1])
+        
+        for j in range(i, len(rows)):
+            if len(str_nums) > 3:
+                raise ValueError(f"ERROR IN make_std_poly_info: 3 str_nums for one std_poly_form - {std_poly_form}: {str_nums}")
+            if len(str_nums) == 3:
+                break
+            if j in used_indexes:
+                continue
+            if rows[j][0] == std_poly_form and rows[j][1] not in str_nums:
+                str_nums.append(rows[j][1])
+                used_indexes.append(j)
+        
+        while len(str_nums) < 3:
+            str_nums.append(None)
+        cursor.execute('''INSERT INTO std_poly_info (std_poly_form, std_poly_LC, str_num_1, str_num_2, str_num_3) VALUES (?, ?, ?, ?, ?)
+                       ON CONFLICT (std_poly_form)DO UPDATE SET str_num_3 = "!!!"''',
+                       (std_poly_form, std_poly_LC, str_nums[0], str_nums[1], str_nums[2])
+        )
+
+def test_std_poly_info(conn):
+    df = pd.read_sql_query('SELECT * FROM std_poly_info', conn)
+    df.to_csv(Path(__file__).parent / ".." / "output" / "std_poly_info.csv", index=False, encoding="utf-8-sig")
 
 def make_strongs_info(cursor):
     cursor.execute('DROP TABLE IF EXISTS strongs_info')
@@ -1085,6 +1136,25 @@ def test_strongs_info(conn):
     df = pd.read_sql_query('SELECT * FROM strongs_info', conn)
     df.to_csv(Path(__file__).parent / ".." / "output" / "strongs_info.csv", index=False, encoding="utf-8-sig")
 
+def test_rp_instances_and_info(conn):
+    df = pd.read_sql_query('''SELECT wi.book, wi.chapter, wi.verse, wi.word_index, wi.word, pwi.std_poly_form, pwi.str_num, si.word AS lemma, si.def, si.root_1, si.root_2, si.root_3,
+                           CASE
+                            WHEN pwi.str_num = spi.str_num_1 THEN spi.str_num_2
+                            WHEN pwi.str_num = spi.str_num_2 THEN spi.str_num_1
+                            ELSE spi.str_num_1
+                           END AS alt_1_str_num,
+
+                           CASE
+                            WHEN pwi.str_num = spi.str_num_2 THEN spi.str_num_3
+                            WHEN pwi.str_num = spi.str_num_3 THEN spi.str_num_2
+                            ELSE spi.str_num_3
+                           END AS alt_2_str_num
+                           FROM word_instances wi
+                           LEFT JOIN parsed_word_info pwi ON wi.id = pwi.instance_id
+                           LEFT JOIN std_poly_info spi ON pwi.std_poly_form = spi.std_poly_form
+                           LEFT JOIN strongs_info si ON pwi.str_num = si.str_num''', conn)
+    df.to_csv(Path(__file__).parent / ".." / "output" / "test_rp_instances_and_info.csv", index=False, encoding="utf-8-sig")
+
 def make_pericope_words(cursor):
     cursor.execute('DROP TABLE IF EXISTS pericope_words')
 
@@ -1096,7 +1166,7 @@ def make_pericope_words(cursor):
                    book VARCHAR(45),
                    chapter INTEGER,
                    verse INTEGER,
-                   word_index INTEGER,
+                   word_index INTEGER
                    )''')
     
     base = (Path(__file__).parent / ".." / "external_sources" / "byzantine-majority-text-master" / "source" / "ccat").resolve()
@@ -1145,9 +1215,8 @@ def make_pericope_words(cursor):
                     if chapter != last_chapter or verse != last_verse:
                         word_index = 1
                 else:
-                    mono_LC = simplify_betacode(punctuated_word, False, None, punctuation_map.keys())
-                    word = mono_LC
-                    unicode = betacode_to_unicode(mono_LC, alphabet_map, diacritic_map, None, True)
+                    word = simplify_betacode(punctuated_word, False, None, punctuation_map.keys())
+                    unicode = betacode_to_unicode(word, alphabet_map, diacritic_map, None, True)
                     std_poly_LC = to_std_poly_form(unicode, False, name_diacritic_map)
                     cursor.execute('''
                             INSERT INTO pericope_words (word, unicode, std_poly_LC, book, chapter, verse, word_index)
@@ -1174,14 +1243,11 @@ def make_source_verses(cursor):
                    verse_text TEXT
     )''')
 
-    cursor.execute('''SELECT sinf.unicode, inst.book, inst.chapter, inst.verse FROM word_instances inst
-                   LEFT JOIN source_word_info sinf ON inst.source_id = sinf.id
-    ''')
+    cursor.execute('''SELECT unicode, book, chapter, verse FROM word_instances inst''')
 
     rows = cursor.fetchall()
 
     verse_text = ""
-    last_verse_num = None
     for i in range(len(rows)):
         word = rows[i][0]
         book = rows[i][1]
@@ -1196,6 +1262,40 @@ def make_source_verses(cursor):
 def test_source_verses(conn):
     df = pd.read_sql_query('SELECT * FROM source_verses', conn)
     df.to_csv((Path(__file__).parent / ".." / "output" / "source_verses.csv").resolve(), index=False, encoding="utf-8-sig")
+
+# To match by strong's number
+def make_str_num_verses(cursor):
+    cursor.execute('DROP TABLE IF EXISTS str_num_verses')
+
+    cursor.execute('''CREATE TABLE IF NOT EXISTS str_num_verses (
+                   id INTEGER PRIMARY KEY AUTOINCREMENT,
+                   book VARCHAR(45),
+                   chapter INTEGER,
+                   verse_num INTEGER,
+                   verse_text TEXT
+    )''')
+
+    cursor.execute('''SELECT pinf.str_num, inst.unicode, inst.book, inst.chapter, inst.verse FROM word_instances inst LEFT JOIN parsed_word_info pinf ON inst.id = pinf.instance_id''')
+    # cursor.execute('''SELECT pinf.str_num, inst.unicode, inst.book, inst.chapter, inst.verse FROM word_instances inst
+    #                LEFT JOIN parsed_word_info pinf ON inst.id = pinf.instance_id
+    #                LIMIT 15''')
+    rows = cursor.fetchall()
+
+    verse_text = ""
+    for i in range(len(rows)):
+        str_num = str(rows[i][0])
+        book = rows[i][2]
+        chapter = rows[i][3]
+        verse_num = int(rows[i][4])
+        verse_text += str_num + " "
+        if i == len(rows) - 1 or int(rows[i+1][4]) != verse_num:
+            verse_text = verse_text.strip()
+            cursor.execute("INSERT INTO str_num_verses (book, chapter, verse_num, verse_text) VALUES (?, ?, ?, ?)", (book, chapter, verse_num, verse_text))
+            verse_text = ""
+
+def test_str_num_verses(conn):
+    df = pd.read_sql_query('SELECT * FROM str_num_verses', conn)
+    df.to_csv((Path(__file__).parent / ".." / "output" / "str_num_verses.csv").resolve(), index=False, encoding="utf-8-sig")
 
 def make_pericope_match_info(cursor):
     cursor.execute('DROP TABLE IF EXISTS pericope_match_info')
@@ -1307,37 +1407,488 @@ def test_pericope_match_info(conn):
     df = pd.read_sql_query('SELECT * FROM pericope_match_info', conn)
     df.to_csv((Path(__file__).parent / ".." / "output" / "pericope_match_info.csv").resolve(), index=False, encoding="utf-8-sig")
 
+def make_pericope_match_info_by_str_num(cursor):
+    cursor.execute('DROP TABLE IF EXISTS pericope_match_info_by_str_num')
+
+    cursor.execute('''CREATE TABLE IF NOT EXISTS pericope_match_info_by_str_num (
+                   id INTEGER PRIMARY KEY AUTOINCREMENT,
+                   pericope_id INTEGER,
+                   word_order INTEGER,
+                   secondary_word_order INTEGER,
+                   matched_word_index INTEGER,
+                   FOREIGN KEY (pericope_id) REFERENCES pericope_words(id)
+                   )''')
+
+    # cursor.execute("SELECT book, chapter, verse_num, verse_text FROM str_num_verses WHERE book = 'ACT' AND chapter = ? AND verse_num = ? LIMIT 1", (24, 6))
+    cursor.execute("SELECT book, chapter, verse_num, verse_text FROM str_num_verses")
+    verse_rows = cursor.fetchall()
+
+    cursor.execute("CREATE INDEX IF NOT EXISTS idx_pericope_words_bcv ON pericope_words(book, chapter, verse)")
+
+    cursor.execute("CREATE INDEX IF NOT EXISTS idx_std_poly_info_std_poly_LC ON std_poly_info(std_poly_LC)")
+
+    # with open((Path(__file__).parent / ".." / "output" / "testing" / "pericope_match_info_log.txt").resolve(), 'w', encoding='utf-8') as out_file:
+    #     out_file.write("HEY HEY\n")
+
+    rp_book_index = 0
+    rp_chapter_index = 1
+    rp_verse_num_index = 2
+    rp_verse_text_index = 3
+    for verse_row in verse_rows:
+        cursor.execute("SELECT id, std_poly_LC, book, chapter, verse, word_index FROM pericope_words WHERE book = ? AND chapter = ? AND verse = ?",
+                       (verse_row[rp_book_index], verse_row[rp_chapter_index], verse_row[rp_verse_num_index]))
+        per_rows = cursor.fetchall()
+
+        verse_words = verse_row[rp_verse_text_index].lower().split(" ")
+        per_id_by_match_index = [None] * len(verse_words)
+        used_indexes = []
+        highest_used_index = -1
+
+        for per_row in per_rows:
+            id = per_row[0]
+            std_poly_LC = per_row[1]
+            str_nums = None
+            cursor.execute("SELECT str_num_1, str_num_2, str_num_3 FROM std_poly_info WHERE std_poly_LC = ?", (std_poly_LC,))
+            str_row = cursor.fetchone()
+            if str_row:
+                str_nums = [str(i) if i is not None else i for i in str_row]
+            else:
+                str_nums = [None]
+            
+            curr_position = 0
+            if used_indexes:
+                curr_position = highest_used_index + 1
+            if curr_position < len(verse_words):
+                shifted_match_index = None
+                shifted_match_index_to_use = None
+                for str_num in str_nums:
+                    if str_num in verse_words[curr_position:]:
+                        temp_shifted_match_index = verse_words[curr_position:].index(str_num)
+                        if shifted_match_index_to_use is not None:
+                            if temp_shifted_match_index < shifted_match_index_to_use:
+                                shifted_match_index_to_use = temp_shifted_match_index
+                        else:
+                            shifted_match_index_to_use = temp_shifted_match_index
+                shifted_match_index = shifted_match_index_to_use
+                if shifted_match_index is not None:
+                    match_index = shifted_match_index + curr_position
+                    per_id_by_match_index[match_index] = id
+                    used_indexes.append(match_index)
+                    if match_index > highest_used_index:
+                        highest_used_index = match_index
+            else:
+                break
+        
+        # print(f"per_rows {per_rows}")
+        # print(f"verse_row {verse_row}")
+        # print(f"per_id_by_match_index {per_id_by_match_index}")
+        to_insert = []
+        # -1 means that no match has occured yet - necessary so that words that appear before a match will be ordered properly
+        word_order = -1
+        secondary_word_order = 1
+        last_verse = None
+        for per_row in per_rows:
+            id = per_row[0]
+            verse = per_row[4]
+            # with open((Path(__file__).parent / ".." / "output" / "testing" / "pericope_match_info_log.txt").resolve(), 'a', encoding='utf-8') as out_file:
+            #     out_file.write(f"disp_rows[i] {disp_rows[i]} \n")
+            #     out_file.write(f"last_verse {last_verse} curr_verse {disp_rows[i][verse_index]} word_order {word_order} secondary_word_order {secondary_word_order} \n")
+            if last_verse is not None:
+                if last_verse != verse:
+                    word_order = -1
+                    secondary_word_order = 1
+
+            if id in per_id_by_match_index:
+                matched_word_index = per_id_by_match_index.index(id) + 1
+                word_order = matched_word_index
+                secondary_word_order = 1
+            else:
+                matched_word_index = None
+                # use word_order and not word_order + 1 because sbl_id_by_match_index is 0-indexed
+                if word_order != -1 and word_order < len(per_id_by_match_index):
+                    next_match_id = per_id_by_match_index[word_order]
+                    # with open((Path(__file__).parent / ".." / "output" / "testing" / "pericope_match_info_log.txt").resolve(), 'a', encoding='utf-8') as out_file:
+                    #     out_file.write(f"next_match_id {next_match_id} word_order {word_order} \n disp_rows[i] {disp_rows[i]} \n")
+                    if next_match_id is not None:
+                        secondary_word_order += 1
+                    else:
+                        word_order += 1
+                else:
+                    if word_order != -1:
+                        word_order += 1
+                    else:
+                        if last_verse is not None:
+                            secondary_word_order += 1
+            last_verse = verse
+
+            to_insert.append([id, word_order, secondary_word_order, matched_word_index])
+
+        cursor.executemany('''
+            INSERT INTO pericope_match_info_by_str_num (pericope_id, word_order, secondary_word_order, matched_word_index)
+            VALUES (?, ?, ?, ?)
+            ''', to_insert
+        )
+
+
+def test_pericope_match_info_by_str_num(conn):
+    df = pd.read_sql_query('SELECT * FROM pericope_match_info_by_str_num', conn)
+    df.to_csv((Path(__file__).parent / ".." / "output" / "pericope_match_info_by_str_num.csv").resolve(), index=False, encoding="utf-8-sig")
+
+def make_optimal_pericope_match_info(cursor):
+    cursor.execute('DROP TABLE IF EXISTS optimal_pericope_match_info')
+
+    cursor.execute('''CREATE TABLE IF NOT EXISTS optimal_pericope_match_info (
+                   id INTEGER PRIMARY KEY AUTOINCREMENT,
+                   pericope_id INTEGER,
+                   word_order INTEGER,
+                   secondary_word_order INTEGER,
+                   matched_word_index INTEGER,
+                   FOREIGN KEY (pericope_id) REFERENCES pericope_words(id)
+                   )''')
+
+    # cursor.execute("SELECT book, chapter, verse_num, verse_text FROM str_num_verses WHERE book = 'ACT' AND chapter = ? AND verse_num = ? LIMIT 1", (24, 6))
+    cursor.execute("SELECT book, chapter, verse_num, verse_text FROM str_num_verses")
+    str_verse_rows = cursor.fetchall()
+
+    # cursor.execute("SELECT book, chapter, verse_num, verse_text FROM source_verses WHERE book = 'ACT' AND chapter = ? AND verse_num = ? LIMIT 1", (24, 6))
+    cursor.execute("SELECT book, chapter, verse_num, verse_text FROM source_verses")
+    source_verse_rows = cursor.fetchall()
+
+    cursor.execute("CREATE INDEX IF NOT EXISTS idx_pericope_words_bcv ON pericope_words(book, chapter, verse)")
+
+    cursor.execute("CREATE INDEX IF NOT EXISTS idx_std_poly_info_std_poly_LC ON std_poly_info(std_poly_LC)")
+
+    # with open((Path(__file__).parent / ".." / "output" / "testing" / "pericope_match_info_log.txt").resolve(), 'w', encoding='utf-8') as out_file:
+    #     out_file.write("HEY HEY\n")
+
+    rp_book_index = 0
+    rp_chapter_index = 1
+    rp_verse_num_index = 2
+    rp_verse_text_index = 3
+    for source_verse_row, str_verse_row in zip(source_verse_rows, str_verse_rows):
+        if source_verse_row[rp_book_index] != str_verse_row[rp_book_index] or source_verse_row[rp_chapter_index] != str_verse_row[rp_chapter_index] or source_verse_row[rp_verse_num_index] != str_verse_row[rp_verse_num_index]:
+            raise ValueError("ERROR IN make_optimal_pericope_match_info: source_verse_row != str_verse_row")
+        cursor.execute("SELECT id, unicode, std_poly_LC, book, chapter, verse, word_index FROM pericope_words WHERE book = ? AND chapter = ? AND verse = ?",
+                       (source_verse_row[rp_book_index], source_verse_row[rp_chapter_index], source_verse_row[rp_verse_num_index]))
+        per_rows = cursor.fetchall()
+
+        # MATCH BY WORD
+
+        verse_words = source_verse_row[rp_verse_text_index].lower().split(" ")
+        per_id_by_word_match_index = [None] * len(verse_words)
+        used_indexes = []
+        highest_used_index = -1
+
+        for per_row in per_rows:
+            id = per_row[0]
+            word = per_row[1].lower()
+            curr_position = 0
+            if used_indexes:
+                curr_position = highest_used_index + 1
+            if curr_position < len(verse_words):
+                shifted_match_index = None
+                if word in verse_words[curr_position:]:
+                    # capitals in words are ignored for matching purposes
+                    shifted_match_index = verse_words[curr_position:].index(word)
+                if shifted_match_index is not None:
+                    match_index = shifted_match_index + curr_position
+                    per_id_by_word_match_index[match_index] = id
+                    used_indexes.append(match_index)
+                    if match_index > highest_used_index:
+                        highest_used_index = match_index
+            else:
+                break
+
+        # MATCH BY STR_NUM
+
+        verse_words = str_verse_row[rp_verse_text_index].split(" ")
+        per_id_by_str_num_match_index = [None] * len(verse_words)
+        used_indexes = []
+        highest_used_index = -1
+
+        for per_row in per_rows:
+            id = per_row[0]
+            std_poly_LC = per_row[2]
+            str_nums = None
+            cursor.execute("SELECT str_num_1, str_num_2, str_num_3 FROM std_poly_info WHERE std_poly_LC = ?", (std_poly_LC,))
+            str_row = cursor.fetchone()
+            if str_row:
+                str_nums = [str(i) if i is not None else i for i in str_row]
+            else:
+                str_nums = [None]
+            
+            curr_position = 0
+            if used_indexes:
+                curr_position = highest_used_index + 1
+            if curr_position < len(verse_words):
+                shifted_match_index = None
+                shifted_match_index_to_use = None
+                for str_num in str_nums:
+                    if str_num in verse_words[curr_position:]:
+                        temp_shifted_match_index = verse_words[curr_position:].index(str_num)
+                        if shifted_match_index_to_use is not None:
+                            if temp_shifted_match_index < shifted_match_index_to_use:
+                                shifted_match_index_to_use = temp_shifted_match_index
+                        else:
+                            shifted_match_index_to_use = temp_shifted_match_index
+                shifted_match_index = shifted_match_index_to_use
+                if shifted_match_index is not None:
+                    match_index = shifted_match_index + curr_position
+                    per_id_by_str_num_match_index[match_index] = id
+                    used_indexes.append(match_index)
+                    if match_index > highest_used_index:
+                        highest_used_index = match_index
+            else:
+                break
+        
+        per_id_by_match_index = None
+        if per_id_by_word_match_index.count(None) < per_id_by_str_num_match_index.count(None):
+            per_id_by_match_index = per_id_by_word_match_index
+        else:
+            per_id_by_match_index = per_id_by_str_num_match_index
+
+        # print(f"per_rows {per_rows}")
+        # print(f"verse_row {verse_row}")
+        # print(f"per_id_by_match_index {per_id_by_match_index}")
+        to_insert = []
+        # -1 means that no match has occured yet - necessary so that words that appear before a match will be ordered properly
+        word_order = -1
+        secondary_word_order = 1
+        last_verse = None
+        for per_row in per_rows:
+            id = per_row[0]
+            verse = per_row[5]
+            # with open((Path(__file__).parent / ".." / "output" / "testing" / "pericope_match_info_log.txt").resolve(), 'a', encoding='utf-8') as out_file:
+            #     out_file.write(f"disp_rows[i] {disp_rows[i]} \n")
+            #     out_file.write(f"last_verse {last_verse} curr_verse {disp_rows[i][verse_index]} word_order {word_order} secondary_word_order {secondary_word_order} \n")
+            if last_verse is not None:
+                if last_verse != verse:
+                    word_order = -1
+                    secondary_word_order = 1
+
+            if id in per_id_by_match_index:
+                matched_word_index = per_id_by_match_index.index(id) + 1
+                word_order = matched_word_index
+                secondary_word_order = 1
+            else:
+                matched_word_index = None
+                # use word_order and not word_order + 1 because sbl_id_by_match_index is 0-indexed
+                if word_order != -1 and word_order < len(per_id_by_match_index):
+                    next_match_id = per_id_by_match_index[word_order]
+                    # with open((Path(__file__).parent / ".." / "output" / "testing" / "pericope_match_info_log.txt").resolve(), 'a', encoding='utf-8') as out_file:
+                    #     out_file.write(f"next_match_id {next_match_id} word_order {word_order} \n disp_rows[i] {disp_rows[i]} \n")
+                    if next_match_id is not None:
+                        secondary_word_order += 1
+                    else:
+                        word_order += 1
+                else:
+                    if word_order != -1:
+                        word_order += 1
+                    else:
+                        if last_verse is not None:
+                            secondary_word_order += 1
+            last_verse = verse
+
+            to_insert.append([id, word_order, secondary_word_order, matched_word_index])
+
+        cursor.executemany('''
+            INSERT INTO optimal_pericope_match_info (pericope_id, word_order, secondary_word_order, matched_word_index)
+            VALUES (?, ?, ?, ?)
+            ''', to_insert
+        )
+
+
+def test_optimal_pericope_match_info(conn):
+    df = pd.read_sql_query('SELECT * FROM optimal_pericope_match_info', conn)
+    df.to_csv((Path(__file__).parent / ".." / "output" / "optimal_pericope_match_info.csv").resolve(), index=False, encoding="utf-8-sig")
+
 def test_full_pericope_info(conn):
-    df = pd.read_sql_query('''SELECT dw.book, dw.chapter, dw.verse, dw.word_index, dw.word, dw.unicode, dm.matched_word_index, dm.word_order, dm.secondary_word_order
-                           FROM pericope_match_info dm
-                           LEFT JOIN pericope_words dw
-                           ON dm.pericope_id = dw.id
+    df = pd.read_sql_query('''
+                           WITH full_peric AS (
+                            SELECT pw.book, pw.chapter, pw.verse, pw.word_index, pw.word, pw.unicode, pw.std_poly_LC, pm.matched_word_index, pm.word_order, pm.secondary_word_order
+                            FROM pericope_match_info pm
+                            LEFT JOIN pericope_words pw
+                            ON pm.pericope_id = pw.id
 
-                           UNION
+                            UNION
 
-                           SELECT dw.book, dw.chapter, dw.verse, dw.word_index, dw.word, dw.unicode, dm.matched_word_index,
-                            COALESCE(dm.word_order, dw.word_index) AS word_order, COALESCE(dm.secondary_word_order, 1)
-                           FROM pericope_words dw
-                           LEFT JOIN pericope_match_info dm
-                           ON dm.pericope_id = dw.id
+                            SELECT pw.book, pw.chapter, pw.verse, pw.word_index, pw.word, pw.unicode, pw.std_poly_LC, pm.matched_word_index,
+                                COALESCE(pm.word_order, pw.word_index) AS word_order, COALESCE(pm.secondary_word_order, 1) AS secondary_word_order
+                            FROM pericope_words pw
+                            LEFT JOIN pericope_match_info pm
+                            ON pm.pericope_id = pw.id
+                           )
+                           SELECT full_peric.book, full_peric.chapter, full_peric.verse, full_peric.word_index, full_peric.matched_word_index,
+                            full_peric.word_order, full_peric.secondary_word_order, full_peric.word, full_peric.unicode, spi.std_poly_form, si.str_num, si.word AS lemma, si.def,
+                           si.root_1, si.root_2, si.root_3, spi.str_num_2 AS str_num_alt_2, spi.str_num_3 AS str_num_alt_3
+                           FROM full_peric
+                           LEFT JOIN std_poly_info spi ON full_peric.std_poly_LC = spi.std_poly_LC
+                           LEFT JOIN strongs_info si ON spi.str_num_1 = si.str_num
+                           ORDER BY chapter, verse, word_order, secondary_word_order
+                           
                            ''', conn)
     df.to_csv((Path(__file__).parent / ".." / "output" / "full_pericope_info.csv").resolve(), index=False, encoding="utf-8-sig")
+
+def test_rp_pericope_merge(conn):
+    df = pd.read_sql_query('''WITH rp AS (
+                            SELECT book, chapter, verse, word_index, unicode AS word FROM word_instances
+                           ),
+                           full_peric AS (
+                            SELECT pw.book, pw.chapter, pw.verse, pw.word_index, pw.word, pw.unicode, pw.std_poly_LC, pm.matched_word_index, pm.word_order, pm.secondary_word_order
+                            FROM pericope_match_info pm
+                            LEFT JOIN pericope_words pw
+                            ON pm.pericope_id = pw.id
+
+                            UNION
+
+                            SELECT pw.book, pw.chapter, pw.verse, pw.word_index, pw.word, pw.unicode, pw.std_poly_LC, pm.matched_word_index,
+                                COALESCE(pm.word_order, pw.word_index) AS word_order, COALESCE(pm.secondary_word_order, 1) AS secondary_word_order
+                            FROM pericope_words pw
+                            LEFT JOIN pericope_match_info pm
+                            ON pm.pericope_id = pw.id
+                            ),
+                            final AS (
+                                SELECT rp.book AS book, rp.chapter AS chapter, rp.verse AS verse, rp.word_index, rp.word AS rp_word, full_peric.unicode AS peric_word,
+                                    COALESCE(full_peric.word_order, rp.word_index) AS index_order, full_peric.secondary_word_order FROM rp
+                                LEFT JOIN full_peric ON rp.book = full_peric.book AND rp.chapter = full_peric.chapter AND rp.verse = full_peric.verse
+                                    AND rp.word_index = full_peric.matched_word_index
+                           
+                                UNION
+                           
+                                SELECT COALESCE(rp.book, full_peric.book) AS book, COALESCE(rp.chapter, full_peric.chapter) AS chapter, COALESCE(rp.verse, full_peric.verse) AS verse,
+                                    rp.word_index, rp.word AS rp_word, full_peric.unicode AS peric_word, COALESCE(full_peric.word_order, rp.word_index) AS index_order,
+                                    full_peric.secondary_word_order FROM full_peric
+                                LEFT JOIN rp ON rp.book = full_peric.book AND rp.chapter = full_peric.chapter AND rp.verse = full_peric.verse
+                                    AND rp.word_index = full_peric.matched_word_index
+                            )
+                           
+                           SELECT f.book, f.chapter, f.verse, f.word_index, f.index_order, f.rp_word, f.peric_word FROM final f
+                           LEFT JOIN books bo ON bo.book = f.book
+                           ORDER BY bo.id, f.chapter, f.verse, f.index_order, f.secondary_word_order
+                           
+                           ''', conn)
+    df.to_csv((Path(__file__).parent / ".." / "output" / "test_rp_pericope_merge.csv").resolve(), index=False, encoding="utf-8-sig")
+
+def test_full_pericope_info_by_str_num(conn):
+    df = pd.read_sql_query('''
+                           WITH full_peric AS (
+                            SELECT pw.book, pw.chapter, pw.verse, pw.word_index, pw.word, pw.unicode, pw.std_poly_LC, pm.matched_word_index, pm.word_order, pm.secondary_word_order
+                            FROM pericope_match_info_by_str_num pm
+                            LEFT JOIN pericope_words pw
+                            ON pm.pericope_id = pw.id
+
+                            UNION
+
+                            SELECT pw.book, pw.chapter, pw.verse, pw.word_index, pw.word, pw.unicode, pw.std_poly_LC, pm.matched_word_index,
+                                COALESCE(pm.word_order, pw.word_index) AS word_order, COALESCE(pm.secondary_word_order, 1) AS secondary_word_order
+                            FROM pericope_words pw
+                            LEFT JOIN pericope_match_info_by_str_num pm
+                            ON pm.pericope_id = pw.id
+                           )
+                           SELECT full_peric.book, full_peric.chapter, full_peric.verse, full_peric.word_index, full_peric.matched_word_index,
+                            full_peric.word_order, full_peric.secondary_word_order, full_peric.word, full_peric.unicode, spi.std_poly_form, si.str_num, si.word AS lemma, si.def,
+                           si.root_1, si.root_2, si.root_3, spi.str_num_2 AS str_num_alt_2, spi.str_num_3 AS str_num_alt_3
+                           FROM full_peric
+                           LEFT JOIN std_poly_info spi ON full_peric.std_poly_LC = spi.std_poly_LC
+                           LEFT JOIN strongs_info si ON spi.str_num_1 = si.str_num
+                           ORDER BY chapter, verse, word_order, secondary_word_order
+                           
+                           ''', conn)
+    df.to_csv((Path(__file__).parent / ".." / "output" / "full_pericope_info_by_str_num.csv").resolve(), index=False, encoding="utf-8-sig")
+
+def test_rp_pericope_merge_by_str_num(conn):
+    df = pd.read_sql_query('''WITH rp AS (
+                            SELECT book, chapter, verse, word_index, unicode AS word FROM word_instances
+                           ),
+                           full_peric AS (
+                            SELECT pw.book, pw.chapter, pw.verse, pw.word_index, pw.word, pw.unicode, pw.std_poly_LC, pm.matched_word_index, pm.word_order, pm.secondary_word_order
+                            FROM pericope_match_info_by_str_num pm
+                            LEFT JOIN pericope_words pw
+                            ON pm.pericope_id = pw.id
+
+                            UNION
+
+                            SELECT pw.book, pw.chapter, pw.verse, pw.word_index, pw.word, pw.unicode, pw.std_poly_LC, pm.matched_word_index,
+                                COALESCE(pm.word_order, pw.word_index) AS word_order, COALESCE(pm.secondary_word_order, 1) AS secondary_word_order
+                            FROM pericope_words pw
+                            LEFT JOIN pericope_match_info_by_str_num pm
+                            ON pm.pericope_id = pw.id
+                            ),
+                            final AS (
+                                SELECT rp.book AS book, rp.chapter AS chapter, rp.verse AS verse, rp.word_index, rp.word AS rp_word, full_peric.unicode AS peric_word,
+                                    COALESCE(full_peric.word_order, rp.word_index) AS index_order, full_peric.secondary_word_order FROM rp
+                                LEFT JOIN full_peric ON rp.book = full_peric.book AND rp.chapter = full_peric.chapter AND rp.verse = full_peric.verse
+                                    AND rp.word_index = full_peric.matched_word_index
+                           
+                                UNION
+                           
+                                SELECT COALESCE(rp.book, full_peric.book) AS book, COALESCE(rp.chapter, full_peric.chapter) AS chapter, COALESCE(rp.verse, full_peric.verse) AS verse,
+                                    rp.word_index, rp.word AS rp_word, full_peric.unicode AS peric_word, COALESCE(full_peric.word_order, rp.word_index) AS index_order,
+                                    full_peric.secondary_word_order FROM full_peric
+                                LEFT JOIN rp ON rp.book = full_peric.book AND rp.chapter = full_peric.chapter AND rp.verse = full_peric.verse
+                                    AND rp.word_index = full_peric.matched_word_index
+                            )
+                           
+                           SELECT f.book, f.chapter, f.verse, f.word_index, f.index_order, f.rp_word, f.peric_word FROM final f
+                           LEFT JOIN books bo ON bo.book = f.book
+                           ORDER BY bo.id, f.chapter, f.verse, f.index_order, f.secondary_word_order
+                           
+                           ''', conn)
+    df.to_csv((Path(__file__).parent / ".." / "output" / "test_rp_pericope_merge_by_str_num.csv").resolve(), index=False, encoding="utf-8-sig")
+
+def test_rp_pericope_optimal_merge(conn):
+    df = pd.read_sql_query('''WITH rp AS (
+                            SELECT book, chapter, verse, word_index, unicode AS word FROM word_instances
+                           ),
+                           full_peric AS (
+                            SELECT pw.book, pw.chapter, pw.verse, pw.word_index, pw.word, pw.unicode, pw.std_poly_LC, pm.matched_word_index, pm.word_order, pm.secondary_word_order
+                            FROM optimal_pericope_match_info pm
+                            LEFT JOIN pericope_words pw
+                            ON pm.pericope_id = pw.id
+
+                            UNION
+
+                            SELECT pw.book, pw.chapter, pw.verse, pw.word_index, pw.word, pw.unicode, pw.std_poly_LC, pm.matched_word_index,
+                                COALESCE(pm.word_order, pw.word_index) AS word_order, COALESCE(pm.secondary_word_order, 1) AS secondary_word_order
+                            FROM pericope_words pw
+                            LEFT JOIN optimal_pericope_match_info pm
+                            ON pm.pericope_id = pw.id
+                            ),
+                            final AS (
+                                SELECT rp.book AS book, rp.chapter AS chapter, rp.verse AS verse, rp.word_index, rp.word AS rp_word, full_peric.unicode AS peric_word,
+                                    COALESCE(full_peric.word_order, rp.word_index) AS index_order, full_peric.secondary_word_order FROM rp
+                                LEFT JOIN full_peric ON rp.book = full_peric.book AND rp.chapter = full_peric.chapter AND rp.verse = full_peric.verse
+                                    AND rp.word_index = full_peric.matched_word_index
+                           
+                                UNION
+                           
+                                SELECT COALESCE(rp.book, full_peric.book) AS book, COALESCE(rp.chapter, full_peric.chapter) AS chapter, COALESCE(rp.verse, full_peric.verse) AS verse,
+                                    rp.word_index, rp.word AS rp_word, full_peric.unicode AS peric_word, COALESCE(full_peric.word_order, rp.word_index) AS index_order,
+                                    full_peric.secondary_word_order FROM full_peric
+                                LEFT JOIN rp ON rp.book = full_peric.book AND rp.chapter = full_peric.chapter AND rp.verse = full_peric.verse
+                                    AND rp.word_index = full_peric.matched_word_index
+                            )
+                           
+                           SELECT f.book, f.chapter, f.verse, f.word_index, f.index_order, f.rp_word, f.peric_word FROM final f
+                           LEFT JOIN books bo ON bo.book = f.book
+                           ORDER BY bo.id, f.chapter, f.verse, f.index_order, f.secondary_word_order
+                           
+                           ''', conn)
+    df.to_csv((Path(__file__).parent / ".." / "output" / "test_rp_pericope_optimal_merge.csv").resolve(), index=False, encoding="utf-8-sig")
 
 def make_sbl_words(cursor):
     cursor.execute('DROP TABLE IF EXISTS sbl_words')
     
     cursor.execute('''CREATE TABLE IF NOT EXISTS sbl_words (
                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                   source_id INTEGER,
-                   parsed_id INTEGER,
                    word VARCHAR(45),
                    mono_LC VARCHAR(45),
+                   std_poly_LC VARCHAR(45),
                    book VARCHAR(45),
                    chapter INTEGER,
                    verse INTEGER,
                    word_index INTEGER,
-                   total_word_index INTEGER,
-                   FOREIGN KEY (source_id) REFERENCES source_word_info(id)
+                   total_word_index INTEGER
                    )''')
 
     # base = (Path(__file__).parent / ".." / "external_sources" / "SBLGNT-master" / "data" / "sblgnt" / "text").resolve()
@@ -1379,13 +1930,15 @@ def make_sbl_words(cursor):
 
     # For Testing
     # base = (Path(__file__).parent / "testing")
-    # book_file_paths = [(base / "test sbl acts 5 2.txt").resolve()]
+    # book_file_paths = [(base / "Test SBL Matthew 1 3.txt").resolve()]
+    # book_file_paths = [base / "Matt.txt"]
 
-    char_df = pd.read_csv((Path(__file__).parent / "tools" / "SBLGNT" / "characters.csv").resolve(), usecols=[1, 2,3])
-    char_df.columns = ['diacritics', 'punctuation', 'footnote']
+    char_df = pd.read_csv((Path(__file__).parent / "tools" / "SBLGNT" / "characters.csv").resolve(), usecols=[1, 2, 3, 4])
+    char_df.columns = ['diacritics', 'diacritic_names', 'punctuation', 'footnote']
     punc_chars = set(char_df['punctuation'])
     foot_chars = set(char_df['footnote'])
     diac_chars = set(char_df["diacritics"])
+    name_diacritic_map =  dict(zip(char_df["diacritic_names"], char_df['diacritics']))
 
     book_counter = 0
     total_word_index = 1
@@ -1418,25 +1971,10 @@ def make_sbl_words(cursor):
                 lower_word = unicodedata.normalize('NFD', lower_word)
                 mono_LC = ''.join(c for c in lower_word if c not in diac_chars)
                 mono_LC = unicodedata.normalize('NFC', mono_LC)
-
-                cursor.execute("SELECT id, parsed_id FROM source_word_info WHERE unicode = ?", (word,))
-
-                source_row = cursor.fetchone()
-
-                source_id = None
-
-                parsed_id = None
-
-                if source_row:
-                    source_id = source_row[0]
-                    parsed_id = source_row[1]
-                else:
-                    # TODO: WORK ON THIS and make sure no mono_lc has 2+ strong number
-                    cursor.execute("SELECT id FROM parsed_word_info WHERE unicode = ?", (word,))
-                    source_row = cursor.fetchone()
+                std_poly_LC = to_std_poly_form(word, False, name_diacritic_map)
                 
-                cursor.execute("INSERT INTO sbl_words (source_id, word, mono_LC, book, chapter, verse, word_index, total_word_index) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-                    (source_id, word, mono_LC, book, chapter, verse, word_index, total_word_index)
+                cursor.execute("INSERT INTO sbl_words (word, mono_LC, std_poly_LC, book, chapter, verse, word_index, total_word_index) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+                    (word, mono_LC, std_poly_LC, book, chapter, verse, word_index, total_word_index)
                 )
                 word_index += 1
                 total_word_index += 1
@@ -1554,6 +2092,294 @@ def test_sbl_match_info(conn):
     df = pd.read_sql_query('SELECT * FROM sbl_match_info', conn)
     df.to_csv((Path(__file__).parent / ".." / "output" / "sbl_match_info.csv").resolve(), index=False, encoding="utf-8-sig")
 
+def make_sbl_match_info_by_str_num(cursor):
+    cursor.execute('DROP TABLE IF EXISTS sbl_match_info_by_str_num')
+
+    cursor.execute('''CREATE TABLE IF NOT EXISTS sbl_match_info_by_str_num (
+                   id INTEGER PRIMARY KEY AUTOINCREMENT,
+                   sbl_id INTEGER,
+                   word_order INTEGER,
+                   secondary_word_order INTEGER,
+                   matched_word_index INTEGER,
+                   FOREIGN KEY (sbl_id) REFERENCES sbl_words(id)
+                   )''')
+
+    # cursor.execute("SELECT book, chapter, verse_num, verse_text FROM source_verses WHERE book = 'MAT' AND chapter = '1' AND verse_num = '1'")
+    cursor.execute("SELECT book, chapter, verse_num, verse_text FROM str_num_verses")
+    verse_rows = cursor.fetchall()
+
+    cursor.execute("CREATE INDEX IF NOT EXISTS idx_sbl_words_bcv ON sbl_words(book, chapter, verse)")
+
+    # with open((Path(__file__).parent / ".." / "output" / "testing" / "pericope_match_info_log.txt").resolve(), 'w', encoding='utf-8') as out_file:
+    #     out_file.write("HEY HEY\n")
+
+    rp_book_index = 0
+    rp_chapter_index = 1
+    rp_verse_num_index = 2
+    rp_verse_text_index = 3
+    for verse_row in verse_rows:
+        cursor.execute("SELECT id, std_poly_LC, book, chapter, verse, word_index FROM sbl_words WHERE book = ? AND chapter = ? AND verse = ?",
+                       (verse_row[rp_book_index], verse_row[rp_chapter_index], verse_row[rp_verse_num_index]))
+        sbl_rows = cursor.fetchall()
+
+        verse_words = verse_row[rp_verse_text_index].lower().split(" ")
+        sbl_id_by_match_index = [None] * len(verse_words)
+        used_indexes = []
+        highest_used_index = -1
+
+        for sbl_row in sbl_rows:
+            id = sbl_row[0]
+            std_poly_LC = sbl_row[1]
+
+            str_nums = None
+            cursor.execute("SELECT str_num_1, str_num_2, str_num_3 FROM std_poly_info WHERE std_poly_LC = ?", (std_poly_LC,))
+            str_row = cursor.fetchone()
+            if str_row:
+                str_nums = [str(i) if i is not None else i for i in str_row]
+            else:
+                str_nums = [None]
+
+            curr_position = 0
+            if used_indexes:
+                curr_position = highest_used_index + 1
+            if curr_position < len(verse_words):
+                shifted_match_index = None
+                shifted_match_index_to_use = None
+                for str_num in str_nums:
+                    if str_num in verse_words[curr_position:]:
+                        temp_shifted_match_index = verse_words[curr_position:].index(str_num)
+                        if shifted_match_index_to_use is not None:
+                            if temp_shifted_match_index < shifted_match_index_to_use:
+                                shifted_match_index_to_use = temp_shifted_match_index
+                        else:
+                            shifted_match_index_to_use = temp_shifted_match_index
+                shifted_match_index = shifted_match_index_to_use
+                if shifted_match_index is not None:
+                    match_index = shifted_match_index + curr_position
+                    sbl_id_by_match_index[match_index] = id
+                    used_indexes.append(match_index)
+                    if match_index > highest_used_index:
+                        highest_used_index = match_index
+            else:
+                break
+        
+        # print(f"sbl_id_by_match_index {sbl_id_by_match_index}")
+        to_insert = []
+        # -1 means that no match has occured yet - necessary so that words that appear before a match will be ordered properly
+        word_order = -1
+        secondary_word_order = 1
+        last_verse = None
+        for sbl_row in sbl_rows:
+            id = sbl_row[0]
+            verse = sbl_row[4]
+            # with open((Path(__file__).parent / ".." / "output" / "testing" / "pericope_match_info_log.txt").resolve(), 'a', encoding='utf-8') as out_file:
+            #     out_file.write(f"disp_rows[i] {disp_rows[i]} \n")
+            #     out_file.write(f"last_verse {last_verse} curr_verse {disp_rows[i][verse_index]} word_order {word_order} secondary_word_order {secondary_word_order} \n")
+            if last_verse is not None:
+                if last_verse != verse:
+                    word_order = -1
+                    secondary_word_order = 1
+
+            if id in sbl_id_by_match_index:
+                matched_word_index = sbl_id_by_match_index.index(id) + 1
+                word_order = matched_word_index
+                secondary_word_order = 1
+            else:
+                matched_word_index = None
+                # use word_order and not word_order + 1 because sbl_id_by_match_index is 0-indexed
+                if word_order != -1 and word_order < len(sbl_id_by_match_index):
+                    next_match_id = sbl_id_by_match_index[word_order]
+                    # with open((Path(__file__).parent / ".." / "output" / "testing" / "pericope_match_info_log.txt").resolve(), 'a', encoding='utf-8') as out_file:
+                    #     out_file.write(f"next_match_id {next_match_id} word_order {word_order} \n disp_rows[i] {disp_rows[i]} \n")
+                    if next_match_id is not None:
+                        secondary_word_order += 1
+                    else:
+                        word_order += 1
+                else:
+                    if word_order != -1:
+                        word_order += 1
+                    else:
+                        if last_verse is not None:
+                            secondary_word_order += 1
+            last_verse = verse
+
+            to_insert.append([id, word_order, secondary_word_order, matched_word_index])
+
+        cursor.executemany('''
+            INSERT INTO sbl_match_info_by_str_num (sbl_id, word_order, secondary_word_order, matched_word_index)
+            VALUES (?, ?, ?, ?)
+            ''', to_insert
+        )
+
+def test_sbl_match_info_by_str_num(conn):
+    df = pd.read_sql_query('SELECT * FROM sbl_match_info_by_str_num', conn)
+    df.to_csv((Path(__file__).parent / ".." / "output" / "sbl_match_info_by_str_num.csv").resolve(), index=False, encoding="utf-8-sig")
+
+def make_optimal_sbl_match_info(cursor):
+    cursor.execute('DROP TABLE IF EXISTS optimal_sbl_match_info')
+
+    cursor.execute('''CREATE TABLE IF NOT EXISTS optimal_sbl_match_info (
+                   id INTEGER PRIMARY KEY AUTOINCREMENT,
+                   sbl_id INTEGER,
+                   word_order INTEGER,
+                   secondary_word_order INTEGER,
+                   matched_word_index INTEGER,
+                   FOREIGN KEY (sbl_id) REFERENCES sbl_words(id)
+                   )''')
+
+    # cursor.execute("SELECT book, chapter, verse_num, verse_text FROM str_num_verses WHERE book = 'ACT' AND chapter = ? AND verse_num = ? LIMIT 1", (24, 6))
+    cursor.execute("SELECT book, chapter, verse_num, verse_text FROM str_num_verses")
+    str_verse_rows = cursor.fetchall()
+
+    # cursor.execute("SELECT book, chapter, verse_num, verse_text FROM source_verses WHERE book = 'ACT' AND chapter = ? AND verse_num = ? LIMIT 1", (24, 6))
+    cursor.execute("SELECT book, chapter, verse_num, verse_text FROM source_verses")
+    source_verse_rows = cursor.fetchall()
+
+    cursor.execute("CREATE INDEX IF NOT EXISTS idx_sbl_words_bcv ON sbl_words(book, chapter, verse)")
+
+    # with open((Path(__file__).parent / ".." / "output" / "testing" / "pericope_match_info_log.txt").resolve(), 'w', encoding='utf-8') as out_file:
+    #     out_file.write("HEY HEY\n")
+
+    rp_book_index = 0
+    rp_chapter_index = 1
+    rp_verse_num_index = 2
+    rp_verse_text_index = 3
+    for source_verse_row, str_verse_row in zip(source_verse_rows, str_verse_rows):
+        if source_verse_row[rp_book_index] != str_verse_row[rp_book_index] or source_verse_row[rp_chapter_index] != str_verse_row[rp_chapter_index] or source_verse_row[rp_verse_num_index] != str_verse_row[rp_verse_num_index]:
+            raise ValueError("ERROR IN make_optimal_sbl_match_info: source_verse_row != str_verse_row")
+        cursor.execute("SELECT id, word, std_poly_LC, book, chapter, verse, word_index FROM sbl_words WHERE book = ? AND chapter = ? AND verse = ?",
+                       (source_verse_row[rp_book_index], source_verse_row[rp_chapter_index], source_verse_row[rp_verse_num_index]))
+        sbl_rows = cursor.fetchall()
+
+        # MATCH BY WORD
+
+        verse_words = source_verse_row[rp_verse_text_index].lower().split(" ")
+        sbl_id_by_word_match_index = [None] * len(verse_words)
+        used_indexes = []
+        highest_used_index = -1
+
+        for sbl_row in sbl_rows:
+            id = sbl_row[0]
+            word = sbl_row[1].lower()
+            curr_position = 0
+            if used_indexes:
+                curr_position = highest_used_index + 1
+            if curr_position < len(verse_words):
+                shifted_match_index = None
+                if word in verse_words[curr_position:]:
+                    # capitals in words are ignored for matching purposes
+                    shifted_match_index = verse_words[curr_position:].index(word)
+                if shifted_match_index is not None:
+                    match_index = shifted_match_index + curr_position
+                    sbl_id_by_word_match_index[match_index] = id
+                    used_indexes.append(match_index)
+                    if match_index > highest_used_index:
+                        highest_used_index = match_index
+            else:
+                break
+
+        # MATCH BY STR_NUM
+
+        verse_words = str_verse_row[rp_verse_text_index].split(" ")
+        sbl_id_by_str_num_match_index = [None] * len(verse_words)
+        used_indexes = []
+        highest_used_index = -1
+
+        for sbl_row in sbl_rows:
+            id = sbl_row[0]
+            std_poly_LC = sbl_row[2]
+            str_nums = None
+            cursor.execute("SELECT str_num_1, str_num_2, str_num_3 FROM std_poly_info WHERE std_poly_LC = ?", (std_poly_LC,))
+            str_row = cursor.fetchone()
+            if str_row:
+                str_nums = [str(i) if i is not None else i for i in str_row]
+            else:
+                str_nums = [None]
+            
+            curr_position = 0
+            if used_indexes:
+                curr_position = highest_used_index + 1
+            if curr_position < len(verse_words):
+                shifted_match_index = None
+                shifted_match_index_to_use = None
+                for str_num in str_nums:
+                    if str_num in verse_words[curr_position:]:
+                        temp_shifted_match_index = verse_words[curr_position:].index(str_num)
+                        if shifted_match_index_to_use is not None:
+                            if temp_shifted_match_index < shifted_match_index_to_use:
+                                shifted_match_index_to_use = temp_shifted_match_index
+                        else:
+                            shifted_match_index_to_use = temp_shifted_match_index
+                shifted_match_index = shifted_match_index_to_use
+                if shifted_match_index is not None:
+                    match_index = shifted_match_index + curr_position
+                    sbl_id_by_str_num_match_index[match_index] = id
+                    used_indexes.append(match_index)
+                    if match_index > highest_used_index:
+                        highest_used_index = match_index
+            else:
+                break
+        
+        sbl_id_by_match_index = None
+        if sbl_id_by_word_match_index.count(None) < sbl_id_by_str_num_match_index.count(None):
+            sbl_id_by_match_index = sbl_id_by_word_match_index
+        else:
+            sbl_id_by_match_index = sbl_id_by_str_num_match_index
+
+        # print(f"per_rows {per_rows}")
+        # print(f"verse_row {verse_row}")
+        # print(f"per_id_by_match_index {per_id_by_match_index}")
+        to_insert = []
+        # -1 means that no match has occured yet - necessary so that words that appear before a match will be ordered properly
+        word_order = -1
+        secondary_word_order = 1
+        last_verse = None
+        for sbl_row in sbl_rows:
+            id = sbl_row[0]
+            verse = sbl_row[5]
+            # with open((Path(__file__).parent / ".." / "output" / "testing" / "pericope_match_info_log.txt").resolve(), 'a', encoding='utf-8') as out_file:
+            #     out_file.write(f"disp_rows[i] {disp_rows[i]} \n")
+            #     out_file.write(f"last_verse {last_verse} curr_verse {disp_rows[i][verse_index]} word_order {word_order} secondary_word_order {secondary_word_order} \n")
+            if last_verse is not None:
+                if last_verse != verse:
+                    word_order = -1
+                    secondary_word_order = 1
+
+            if id in sbl_id_by_match_index:
+                matched_word_index = sbl_id_by_match_index.index(id) + 1
+                word_order = matched_word_index
+                secondary_word_order = 1
+            else:
+                matched_word_index = None
+                # use word_order and not word_order + 1 because sbl_id_by_match_index is 0-indexed
+                if word_order != -1 and word_order < len(sbl_id_by_match_index):
+                    next_match_id = sbl_id_by_match_index[word_order]
+                    # with open((Path(__file__).parent / ".." / "output" / "testing" / "pericope_match_info_log.txt").resolve(), 'a', encoding='utf-8') as out_file:
+                    #     out_file.write(f"next_match_id {next_match_id} word_order {word_order} \n disp_rows[i] {disp_rows[i]} \n")
+                    if next_match_id is not None:
+                        secondary_word_order += 1
+                    else:
+                        word_order += 1
+                else:
+                    if word_order != -1:
+                        word_order += 1
+                    else:
+                        if last_verse is not None:
+                            secondary_word_order += 1
+            last_verse = verse
+
+            to_insert.append([id, word_order, secondary_word_order, matched_word_index])
+
+        cursor.executemany('''
+            INSERT INTO optimal_sbl_match_info (sbl_id, word_order, secondary_word_order, matched_word_index)
+            VALUES (?, ?, ?, ?)
+            ''', to_insert
+        )
+
+def test_optimal_sbl_match_info(conn):
+    df = pd.read_sql_query('SELECT * FROM optimal_sbl_match_info', conn)
+    df.to_csv((Path(__file__).parent / ".." / "output" / "optimal_sbl_match_info.csv").resolve(), index=False, encoding="utf-8-sig")
+
 def test_full_sbl_info(conn):
     df = pd.read_sql_query('''SELECT sw.book, sw.chapter, sw.verse, sw.word_index, sw.word, COALESCE(sm.word_order, sw.word_index) AS word_order,
                            COALESCE(sm.secondary_word_order, 1) AS secondary_word_order, sm.matched_word_index FROM sbl_words sw
@@ -1570,9 +2396,7 @@ def test_full_sbl_info(conn):
 
 def test_rp_sbl_merge(conn):
     df = pd.read_sql_query('''WITH rp AS (
-                            SELECT inst.book, inst.chapter, inst.verse, inst.word_index, sinf.unicode AS word FROM word_instances inst
-                            LEFT JOIN source_word_info sinf
-                            ON inst.source_id = sinf.id
+                            SELECT book, chapter, verse, word_index, unicode AS word FROM word_instances inst
                            ),
                            sbl AS (
                                 SELECT sw.word, sw.book, sw.chapter, sw.verse, sw.word_index, COALESCE(sm.word_order, sw.word_index) AS word_order, sm.secondary_word_order, sm.matched_word_index
@@ -1598,6 +2422,64 @@ def test_rp_sbl_merge(conn):
                            
                            ''', conn)
     df.to_csv((Path(__file__).parent / ".." / "output" / "test_rp_sbl_merge.csv").resolve(), index=False, encoding="utf-8-sig")
+
+def test_rp_sbl_merge_by_str_num(conn):
+    df = pd.read_sql_query('''WITH rp AS (
+                            SELECT book, chapter, verse, word_index, unicode AS word FROM word_instances
+                           ),
+                           sbl AS (
+                                SELECT sw.word, sw.book, sw.chapter, sw.verse, sw.word_index, COALESCE(sm.word_order, sw.word_index) AS word_order, sm.secondary_word_order, sm.matched_word_index
+                                FROM sbl_words sw
+                                LEFT JOIN sbl_match_info_by_str_num sm
+                                ON sw.id = sm.sbl_id
+                            ),
+                            final AS (
+                                SELECT rp.book AS book, rp.chapter AS chapter, rp.verse AS verse, rp.word_index, rp.word AS rp_word, sbl.word AS sbl_word,
+                                    COALESCE(sbl.word_order, rp.word_index) AS index_order, sbl.secondary_word_order FROM rp
+                                LEFT JOIN sbl ON rp.book = sbl.book AND rp.chapter = sbl.chapter AND rp.verse = sbl.verse AND rp.word_index = sbl.matched_word_index
+                           
+                                UNION
+                           
+                                SELECT COALESCE(rp.book, sbl.book) AS book, COALESCE(rp.chapter, sbl.chapter) AS chapter, COALESCE(rp.verse, sbl.verse) AS verse,
+                                    rp.word_index, rp.word AS rp_word, sbl.word AS sbl_word, COALESCE(sbl.word_order, rp.word_index) AS index_order, sbl.secondary_word_order FROM sbl
+                                LEFT JOIN rp ON rp.book = sbl.book AND rp.chapter = sbl.chapter AND rp.verse = sbl.verse AND rp.word_index = sbl.matched_word_index
+                            )
+                           
+                           SELECT f.book, f.chapter, f.verse, f.word_index, f.index_order, f.rp_word, f.sbl_word FROM final f
+                           LEFT JOIN books bo ON bo.book = f.book
+                           ORDER BY bo.id, f.chapter, f.verse, f.index_order, f.secondary_word_order
+                           
+                           ''', conn)
+    df.to_csv((Path(__file__).parent / ".." / "output" / "test_rp_sbl_merge_by_str_num.csv").resolve(), index=False, encoding="utf-8-sig")
+
+def test_rp_sbl_optimal_merge(conn):
+    df = pd.read_sql_query('''WITH rp AS (
+                            SELECT book, chapter, verse, word_index, unicode AS word FROM word_instances
+                           ),
+                           sbl AS (
+                                SELECT sw.word, sw.book, sw.chapter, sw.verse, sw.word_index, COALESCE(sm.word_order, sw.word_index) AS word_order, sm.secondary_word_order, sm.matched_word_index
+                                FROM sbl_words sw
+                                LEFT JOIN optimal_sbl_match_info sm
+                                ON sw.id = sm.sbl_id
+                            ),
+                            final AS (
+                                SELECT rp.book AS book, rp.chapter AS chapter, rp.verse AS verse, rp.word_index, rp.word AS rp_word, sbl.word AS sbl_word,
+                                    COALESCE(sbl.word_order, rp.word_index) AS index_order, sbl.secondary_word_order FROM rp
+                                LEFT JOIN sbl ON rp.book = sbl.book AND rp.chapter = sbl.chapter AND rp.verse = sbl.verse AND rp.word_index = sbl.matched_word_index
+                           
+                                UNION
+                           
+                                SELECT COALESCE(rp.book, sbl.book) AS book, COALESCE(rp.chapter, sbl.chapter) AS chapter, COALESCE(rp.verse, sbl.verse) AS verse,
+                                    rp.word_index, rp.word AS rp_word, sbl.word AS sbl_word, COALESCE(sbl.word_order, rp.word_index) AS index_order, sbl.secondary_word_order FROM sbl
+                                LEFT JOIN rp ON rp.book = sbl.book AND rp.chapter = sbl.chapter AND rp.verse = sbl.verse AND rp.word_index = sbl.matched_word_index
+                            )
+                           
+                           SELECT f.book, f.chapter, f.verse, f.word_index, f.index_order, f.rp_word, f.sbl_word FROM final f
+                           LEFT JOIN books bo ON bo.book = f.book
+                           ORDER BY bo.id, f.chapter, f.verse, f.index_order, f.secondary_word_order
+                           
+                           ''', conn)
+    df.to_csv((Path(__file__).parent / ".." / "output" / "test_rp_sbl_optimal_merge.csv").resolve(), index=False, encoding="utf-8-sig")
 
 def verify_sbl_words(cursor, conn):
     letter_df = pd.read_csv((Path(__file__).parent / "tools" / "SBLGNT" / "characters.csv").resolve(), usecols=[0])
@@ -1691,7 +2573,7 @@ def make_rp_words_file(conn):
 #             winst.book = full_peric.book AND winst.chapter = full_peric.chapter AND winst.verse = full_peric.verse AND winst.word_index = full_peric.matched_word_index
 #         ),
 #         sbl AS (
-#             SELECT sw.word, sw.book, sw.chapter, sw.verse, sw.word_index, COALESCE(sm.word_order, sw.word_index) AS word_order,
+#             SELECT sw.source_id AS sbl_source_id, sw.word, sw.book, sw.chapter, sw.verse, sw.word_index, COALESCE(sm.word_order, sw.word_index) AS word_order,
 #                            COALESCE(sm.secondary_word_order, 1) AS secondary_word_order, sm.matched_word_index
 #             FROM sbl_words sw
 #             LEFT JOIN sbl_match_info sm
@@ -1699,81 +2581,85 @@ def make_rp_words_file(conn):
 
 #             UNION
 
-#             SELECT sw.word, sw.book, sw.chapter, sw.verse, sw.word_index, sm.word_order, sm.secondary_word_order, sm.matched_word_index
+#             SELECT sw.source_id AS sbl_source_id, sw.word, sw.book, sw.chapter, sw.verse, sw.word_index, sm.word_order, sm.secondary_word_order, sm.matched_word_index
 #             FROM sbl_match_info sm
 #             LEFT JOIN sbl_words sw
 #             ON sw.id = sm.sbl_id
 #         ),
 #         full_inst AS (
-#             SELECT rp_inst.source_id, rp_inst.book AS book, rp_inst.chapter AS chapter, rp_inst.verse AS verse, rp_inst.word_index, rp_inst.total_word_index,
+#             SELECT rp_inst.source_id AS rp_source_id, rp_inst.book AS book, rp_inst.chapter AS chapter, rp_inst.verse AS verse, rp_inst.word_index, rp_inst.total_word_index,
 #                            rp_inst.peric_source_id, rp_inst.peric_unicode, rp_inst.peric_word, rp_inst.peric_index_order,
-#                            rp_inst.peric_secondary_index_order, sbl.word AS sbl_word, COALESCE(sbl.word_order, rp_inst.word_index, rp_inst.peric_index_order) AS sbl_index_order,
+#                            rp_inst.peric_secondary_index_order, sbl.sbl_source_id, sbl.word AS sbl_word,
+#                            COALESCE(sbl.word_order, rp_inst.word_index, rp_inst.peric_index_order) AS sbl_index_order, 
 #                            COALESCE(sbl.secondary_word_order, 1) AS sbl_secondary_index_order FROM rp_inst
 #             LEFT JOIN sbl ON rp_inst.book = sbl.book AND rp_inst.chapter = sbl.chapter AND rp_inst.verse = sbl.verse AND rp_inst.word_index = sbl.matched_word_index
         
 #             UNION
         
-#             SELECT rp_inst.source_id, COALESCE(rp_inst.book, sbl.book) AS book, COALESCE(rp_inst.chapter, sbl.chapter) AS chapter, COALESCE(rp_inst.verse, sbl.verse) AS verse,
+#             SELECT rp_inst.source_id AS rp_source_id, COALESCE(rp_inst.book, sbl.book) AS book, COALESCE(rp_inst.chapter, sbl.chapter) AS chapter, COALESCE(rp_inst.verse, sbl.verse) AS verse,
 #                 rp_inst.word_index, rp_inst.total_word_index, rp_inst.peric_source_id, rp_inst.peric_unicode, rp_inst.peric_word,
 #                            COALESCE(rp_inst.peric_index_order, rp_inst.word_index) AS peric_index_order,
-#                            rp_inst.peric_secondary_index_order, sbl.word AS sbl_word,
+#                            rp_inst.peric_secondary_index_order, sbl.sbl_source_id, sbl.word AS sbl_word,
 #                 COALESCE(sbl.word_order, rp_inst.word_index, rp_inst.peric_index_order) AS sbl_index_order, COALESCE(sbl.secondary_word_order, 1) AS sbl_secondary_index_order FROM sbl
 #             LEFT JOIN rp_inst ON rp_inst.book = sbl.book AND rp_inst.chapter = sbl.chapter AND rp_inst.verse = sbl.verse AND rp_inst.word_index = sbl.matched_word_index
 #         ),
+#         to_join AS (
+#             SELECT *, COALESCE(rp_source_id, sbl_source_id, peric_source_id) AS source_join_id
+#             FROM full_inst
+#         ),
 #         final_result AS (
-#             SELECT full_inst.book, full_inst.chapter, full_inst.verse, full_inst.word_index, full_inst.total_word_index,
+#             SELECT to_join.book, to_join.chapter, to_join.verse, to_join.word_index, to_join.total_word_index,
                            
-#             sinf.unicode AS source_form, sinf.count AS source_form_count,
+#             rp_sinf.unicode AS source_form, rp_sinf.count AS source_form_count,
                            
-#             full_inst.sbl_word AS sbl_source_form,
+#             to_join.sbl_word AS sbl_source_form,
 
 #             pinf.unicode AS mono_LC_form, pinf.count AS mono_LC_count,
                                 
-#             sinf.word AS betacode,
+#             rp_sinf.word AS betacode,
                                 
-#             COALESCE(pericinf.unicode, full_inst.peric_unicode) AS pericope_word,
+#             to_join.peric_unicode AS pericope_word,
                            
-#             COALESCE(pericinf.word, full_inst.peric_word) AS pericope_betacode,
+#             to_join.peric_word AS pericope_betacode,
             
 #             strinf.word AS lemma,
                            
-#             COALESCE(pinf.str_num, peripinf.str_num) AS str_num,
+#             pinf.str_num AS str_num,
             
 #             strinf.def AS str_def,
 #             strinf.root_1,
 #             strinf.root_2,
 #             strinf.root_3,
-
-#             COALESCE(pinf.rp_code, peripinf.rp_code) AS rp_code,
-#             COALESCE(pinf.rp_alt_code, peripinf.rp_alt_code) AS rp_alt_code,
-#             COALESCE(pinf.rp_pos, peripinf.rp_pos) AS rp_pos,
-#             COALESCE(pinf.rp_gender, peripinf.rp_gender) AS rp_gender,
-#             COALESCE(pinf.rp_alt_gender, peripinf.rp_alt_gender) AS rp_alt_gender,
-#             COALESCE(pinf.rp_number, peripinf.rp_number) AS rp_number,
-#             COALESCE(pinf.rp_word_case, peripinf.rp_word_case) AS rp_word_case,
-#             COALESCE(pinf.rp_alt_word_case, peripinf.rp_alt_word_case) AS rp_alt_word_case,
-#             COALESCE(pinf.rp_tense, peripinf.rp_tense) AS rp_tense,
-#             COALESCE(pinf.rp_type, peripinf.rp_type) AS rp_type,
-#             COALESCE(pinf.rp_voice, peripinf.rp_voice) AS rp_voice,
-#             COALESCE(pinf.rp_mood, peripinf.rp_mood) AS rp_mood,
-#             COALESCE(pinf.rp_alt_mood, peripinf.rp_alt_mood) AS rp_alt_mood,
-#             COALESCE(pinf.rp_person, peripinf.rp_person) AS rp_person,
-#             COALESCE(pinf.rp_indeclinable, peripinf.rp_indeclinable) AS rp_indeclinable,
-#             COALESCE(pinf.rp_why_indeclinable, peripinf.rp_why_indeclinable) AS rp_why_indeclinable,
-#             COALESCE(pinf.rp_kai_crasis, peripinf.rp_kai_crasis) AS rp_kai_crasis,
-#             COALESCE(pinf.rp_attic_greek_form, peripinf.rp_attic_greek_form) AS rp_attic_greek_form,
+                           
+#             pinf.rp_code AS rp_code,
+#             pinf.rp_alt_code AS rp_alt_code,
+#             pinf.rp_pos AS rp_pos,
+#             pinf.rp_gender AS rp_gender,
+#             pinf.rp_alt_gender AS rp_alt_gender,
+#             pinf.rp_number AS rp_number,
+#             pinf.rp_word_case AS rp_word_case,
+#             pinf.rp_alt_word_case AS rp_alt_word_case,
+#             pinf.rp_tense AS rp_tense,
+#             pinf.rp_type AS rp_type,
+#             pinf.rp_voice AS rp_voice,
+#             pinf.rp_mood AS rp_mood,
+#             pinf.rp_alt_mood AS rp_alt_mood,
+#             pinf.rp_person AS rp_person,
+#             pinf.rp_indeclinable AS rp_indeclinable,
+#             pinf.rp_why_indeclinable AS rp_why_indeclinable,
+#             pinf.rp_kai_crasis AS rp_kai_crasis,
+#             pinf.rp_attic_greek_form AS rp_attic_greek_form,
             
 #             bo.id AS book_id,
             
-#             full_inst.sbl_index_order, full_inst.sbl_secondary_index_order,
-#             full_inst.peric_index_order, full_inst.peric_secondary_index_order
+#             to_join.sbl_index_order, to_join.sbl_secondary_index_order,
+#             to_join.peric_index_order, to_join.peric_secondary_index_order
                            
-#             FROM full_inst
-#             INNER JOIN books bo ON full_inst.book = bo.book
-#             LEFT JOIN source_word_info sinf ON full_inst.source_id = sinf.id
+#             FROM to_join
+#             INNER JOIN books bo ON to_join.book = bo.book
+#             LEFT JOIN source_word_info rp_sinf ON to_join.rp_source_id = rp_sinf.id
+#             LEFT JOIN source_word_info sinf ON to_join.source_join_id = sinf.id
 #             LEFT JOIN parsed_word_info pinf ON sinf.parsed_id = pinf.id
-#             LEFT JOIN source_word_info pericinf ON full_inst.peric_source_id = pericinf.id
-#             LEFT JOIN parsed_word_info peripinf ON pericinf.parsed_id = peripinf.id
 #             LEFT JOIN strongs_info strinf ON pinf.str_num = strinf.str_num
 #         )
 #         SELECT book, chapter, verse, word_index, total_word_index,
@@ -1824,24 +2710,24 @@ def make_rp_words_file(conn):
 
 def make_word_classification(conn):
     df = pd.read_sql_query('''
-        WITH full_peric AS (             
-            SELECT pw.book, pw.chapter, pw.verse, pw.word_index, pw.source_id, pw.word AS peric_word, pw.unicode AS peric_unicode, pm.matched_word_index,
-                           pm.word_order, pm.secondary_word_order
-            FROM pericope_match_info pm
-            LEFT JOIN pericope_words pw
-            ON pm.pericope_id = pw.id
+        WITH full_peric AS (
+                            SELECT pw.book, pw.chapter, pw.verse, pw.word_index, pw.unicode AS peric_word, pw.word AS peric_betacode, pw.std_poly_LC AS peric_std_poly_LC,
+                                pm.matched_word_index, pm.word_order, pm.secondary_word_order
+                            FROM pericope_match_info pm
+                            LEFT JOIN pericope_words pw
+                            ON pm.pericope_id = pw.id
 
-            UNION
+                            UNION
 
-            SELECT pw.book, pw.chapter, pw.verse, pw.word_index, pw.source_id, pw.word AS peric_word, pw.unicode AS peric_unicode, pm.matched_word_index,
-                    COALESCE(pm.word_order, pw.word_index) AS word_order, COALESCE(pm.secondary_word_order, 1)
-            FROM pericope_words pw
-            LEFT JOIN pericope_match_info pm
-            ON pm.pericope_id = pw.id
+                            SELECT pw.book, pw.chapter, pw.verse, pw.word_index, pw.unicode AS peric_word, pw.word AS peric_betacode, pw.std_poly_LC AS peric_std_poly_LC,
+                                pm.matched_word_index, COALESCE(pm.word_order, pw.word_index) AS word_order, COALESCE(pm.secondary_word_order, 1) AS secondary_word_order
+                            FROM pericope_words pw
+                            LEFT JOIN pericope_match_info pm
+                            ON pm.pericope_id = pw.id
         ),
         rp_inst AS (
-            SELECT winst.source_id, winst.book, winst.chapter, winst.verse, winst.word_index, winst.total_word_index,
-                    full_peric.source_id AS peric_source_id, full_peric.peric_unicode, full_peric.peric_word, full_peric.matched_word_index,
+            SELECT winst.id, winst.book, winst.chapter, winst.verse, winst.word_index, winst.total_word_index, winst.unicode AS word, winst.word AS betacode,
+                    full_peric.peric_word, full_peric.peric_betacode, full_peric.peric_std_poly_LC, full_peric.matched_word_index,
                            COALESCE(full_peric.word_order, winst.word_index) AS peric_index_order, COALESCE(full_peric.secondary_word_order, 1) AS peric_secondary_index_order
             FROM word_instances winst
             LEFT JOIN
@@ -1850,17 +2736,17 @@ def make_word_classification(conn):
                            
             UNION
                            
-            SELECT winst.source_id, COALESCE(winst.book, full_peric.book) AS book, COALESCE(winst.chapter, full_peric.chapter) AS chapter,
-                           COALESCE(winst.verse, full_peric.verse) AS verse, winst.word_index, winst.total_word_index,
-                    full_peric.source_id AS peric_source_id, full_peric.peric_unicode, full_peric.peric_word, full_peric.matched_word_index,
-                           COALESCE(full_peric.word_order, winst.word_index) AS peric_index_order, COALESCE(full_peric.secondary_word_order, 1) AS peric_secondary_index_order
+            SELECT winst.id, COALESCE(winst.book, full_peric.book) AS book, COALESCE(winst.chapter, full_peric.chapter) AS chapter, COALESCE(winst.verse, full_peric.verse) AS verse,
+                           winst.word_index, winst.total_word_index, winst.unicode AS word, winst.word AS betacode, full_peric.peric_word, full_peric.peric_betacode,
+                           full_peric.peric_std_poly_LC, full_peric.matched_word_index, COALESCE(full_peric.word_order, winst.word_index) AS peric_index_order,
+                           COALESCE(full_peric.secondary_word_order, 1) AS peric_secondary_index_order
             FROM full_peric
             LEFT JOIN
             word_instances winst ON
             winst.book = full_peric.book AND winst.chapter = full_peric.chapter AND winst.verse = full_peric.verse AND winst.word_index = full_peric.matched_word_index
         ),
         sbl AS (
-            SELECT sw.source_id AS sbl_source_id, sw.word, sw.book, sw.chapter, sw.verse, sw.word_index, COALESCE(sm.word_order, sw.word_index) AS word_order,
+            SELECT sw.book, sw.chapter, sw.verse, sw.word_index, sw.word AS sbl_word, sw.std_poly_LC AS sbl_std_poly_LC, COALESCE(sm.word_order, sw.word_index) AS word_order,
                            COALESCE(sm.secondary_word_order, 1) AS secondary_word_order, sm.matched_word_index
             FROM sbl_words sw
             LEFT JOIN sbl_match_info sm
@@ -1868,55 +2754,45 @@ def make_word_classification(conn):
 
             UNION
 
-            SELECT sw.source_id AS sbl_source_id, sw.word, sw.book, sw.chapter, sw.verse, sw.word_index, sm.word_order, sm.secondary_word_order, sm.matched_word_index
+            SELECT sw.book, sw.chapter, sw.verse, sw.word_index, sw.word AS sbl_word, sw.std_poly_LC AS sbl_std_poly_LC, sm.word_order, sm.secondary_word_order, sm.matched_word_index
             FROM sbl_match_info sm
             LEFT JOIN sbl_words sw
             ON sw.id = sm.sbl_id
         ),
         full_inst AS (
-            SELECT rp_inst.source_id AS rp_source_id, rp_inst.book AS book, rp_inst.chapter AS chapter, rp_inst.verse AS verse, rp_inst.word_index, rp_inst.total_word_index,
-                           rp_inst.peric_source_id, rp_inst.peric_unicode, rp_inst.peric_word, rp_inst.peric_index_order,
-                           rp_inst.peric_secondary_index_order, sbl.sbl_source_id, sbl.word AS sbl_word,
-                           COALESCE(sbl.word_order, rp_inst.word_index, rp_inst.peric_index_order) AS sbl_index_order, 
+            SELECT rp_inst.id AS instance_id, rp_inst.book AS book, rp_inst.chapter AS chapter, rp_inst.verse AS verse, rp_inst.word_index, rp_inst.total_word_index, rp_inst.word,
+                           rp_inst.betacode, rp_inst.peric_word, rp_inst.peric_betacode, sbl.sbl_std_poly_LC, rp_inst.peric_std_poly_LC, rp_inst.peric_index_order,
+                           rp_inst.peric_secondary_index_order, sbl.sbl_word, COALESCE(sbl.word_order, rp_inst.word_index, rp_inst.peric_index_order) AS sbl_index_order, 
                            COALESCE(sbl.secondary_word_order, 1) AS sbl_secondary_index_order FROM rp_inst
             LEFT JOIN sbl ON rp_inst.book = sbl.book AND rp_inst.chapter = sbl.chapter AND rp_inst.verse = sbl.verse AND rp_inst.word_index = sbl.matched_word_index
         
             UNION
         
-            SELECT rp_inst.source_id AS rp_source_id, COALESCE(rp_inst.book, sbl.book) AS book, COALESCE(rp_inst.chapter, sbl.chapter) AS chapter, COALESCE(rp_inst.verse, sbl.verse) AS verse,
-                rp_inst.word_index, rp_inst.total_word_index, rp_inst.peric_source_id, rp_inst.peric_unicode, rp_inst.peric_word,
-                           COALESCE(rp_inst.peric_index_order, rp_inst.word_index) AS peric_index_order,
-                           rp_inst.peric_secondary_index_order, sbl.sbl_source_id, sbl.word AS sbl_word,
+            SELECT rp_inst.id AS instance_id, COALESCE(rp_inst.book, sbl.book) AS book, COALESCE(rp_inst.chapter, sbl.chapter) AS chapter, COALESCE(rp_inst.verse, sbl.verse) AS verse,
+                rp_inst.word_index, rp_inst.total_word_index, rp_inst.word, rp_inst.betacode, rp_inst.peric_word, rp_inst.peric_betacode, sbl.sbl_std_poly_LC,
+                           rp_inst.peric_std_poly_LC, COALESCE(rp_inst.peric_index_order, rp_inst.word_index) AS peric_index_order,
+                           rp_inst.peric_secondary_index_order, sbl.sbl_word,
                 COALESCE(sbl.word_order, rp_inst.word_index, rp_inst.peric_index_order) AS sbl_index_order, COALESCE(sbl.secondary_word_order, 1) AS sbl_secondary_index_order FROM sbl
             LEFT JOIN rp_inst ON rp_inst.book = sbl.book AND rp_inst.chapter = sbl.chapter AND rp_inst.verse = sbl.verse AND rp_inst.word_index = sbl.matched_word_index
         ),
-        to_join AS (
-            SELECT *, COALESCE(rp_source_id, sbl_source_id, peric_source_id) AS source_join_id
-            FROM full_inst
-        ),
-        final_result AS (
-            SELECT to_join.book, to_join.chapter, to_join.verse, to_join.word_index, to_join.total_word_index,
+        parsed_inst AS (
+            SELECT full_inst.book, full_inst.chapter, full_inst.verse, full_inst.word_index, full_inst.total_word_index,
                            
-            rp_sinf.unicode AS source_form, rp_sinf.count AS source_form_count,
+            full_inst.word AS source_form,
                            
-            to_join.sbl_word AS sbl_source_form,
+            full_inst.sbl_word AS sbl_source_form,
 
-            pinf.unicode AS mono_LC_form, pinf.count AS mono_LC_count,
+            pinf.unicode AS mono_LC_form,
                                 
-            rp_sinf.word AS betacode,
+            full_inst.betacode,
                                 
-            to_join.peric_unicode AS pericope_word,
+            full_inst.peric_word AS pericope_word,
                            
-            to_join.peric_word AS pericope_betacode,
-            
-            strinf.word AS lemma,
+            full_inst.peric_betacode AS pericope_betacode,
                            
-            pinf.str_num AS str_num,
-            
-            strinf.def AS str_def,
-            strinf.root_1,
-            strinf.root_2,
-            strinf.root_3,
+            COALESCE(pinf.std_poly_LC, full_inst.sbl_std_poly_LC, full_inst.peric_std_poly_LC) AS final_std_poly_LC,
+                           
+            pinf.str_num AS parsed_str_num,
                            
             pinf.rp_code AS rp_code,
             pinf.rp_alt_code AS rp_alt_code,
@@ -1937,40 +2813,103 @@ def make_word_classification(conn):
             pinf.rp_kai_crasis AS rp_kai_crasis,
             pinf.rp_attic_greek_form AS rp_attic_greek_form,
             
+            full_inst.sbl_index_order, full_inst.sbl_secondary_index_order,
+            full_inst.peric_index_order, full_inst.peric_secondary_index_order
+                           
+            FROM full_inst
+            LEFT JOIN parsed_word_info pinf ON full_inst.instance_id = pinf.instance_id
+        ),
+        penultimate AS (
+            SELECT parsed_inst.book, parsed_inst.chapter, parsed_inst.verse, parsed_inst.word_index, parsed_inst.total_word_index,
+                           
+            parsed_inst.source_form,
+                           
+            parsed_inst.sbl_source_form,
+
+            parsed_inst.mono_LC_form,
+                                
+            parsed_inst.betacode,
+                                
+            parsed_inst.pericope_word,
+                           
+            parsed_inst.pericope_betacode,
+                           
+            parsed_inst.final_std_poly_LC,
+                           
+            COALESCE(parsed_inst.parsed_str_num, spinf.str_num_1) AS final_str_num,
+                           
+            CASE
+                WHEN parsed_inst.parsed_str_num = spinf.str_num_1 OR parsed_inst.parsed_str_num IS NULL THEN spinf.str_num_2
+                WHEN parsed_inst.parsed_str_num = spinf.str_num_2 THEN spinf.str_num_1
+                ELSE spinf.str_num_1
+            END AS alt_1_str_num,
+
+            CASE
+                WHEN parsed_inst.parsed_str_num = spinf.str_num_2 THEN spinf.str_num_3
+                WHEN parsed_inst.parsed_str_num = spinf.str_num_3 THEN spinf.str_num_2
+                ELSE spinf.str_num_3
+            END AS alt_2_str_num,
+                           
+            parsed_inst.rp_code AS rp_code,
+            parsed_inst.rp_alt_code AS rp_alt_code,
+            parsed_inst.rp_pos AS rp_pos,
+            parsed_inst.rp_gender AS rp_gender,
+            parsed_inst.rp_alt_gender AS rp_alt_gender,
+            parsed_inst.rp_number AS rp_number,
+            parsed_inst.rp_word_case AS rp_word_case,
+            parsed_inst.rp_alt_word_case AS rp_alt_word_case,
+            parsed_inst.rp_tense AS rp_tense,
+            parsed_inst.rp_type AS rp_type,
+            parsed_inst.rp_voice AS rp_voice,
+            parsed_inst.rp_mood AS rp_mood,
+            parsed_inst.rp_alt_mood AS rp_alt_mood,
+            parsed_inst.rp_person AS rp_person,
+            parsed_inst.rp_indeclinable AS rp_indeclinable,
+            parsed_inst.rp_why_indeclinable AS rp_why_indeclinable,
+            parsed_inst.rp_kai_crasis AS rp_kai_crasis,
+            parsed_inst.rp_attic_greek_form AS rp_attic_greek_form,
+                           
             bo.id AS book_id,
             
-            to_join.sbl_index_order, to_join.sbl_secondary_index_order,
-            to_join.peric_index_order, to_join.peric_secondary_index_order
+            parsed_inst.sbl_index_order, parsed_inst.sbl_secondary_index_order,
+            parsed_inst.peric_index_order, parsed_inst.peric_secondary_index_order
                            
-            FROM to_join
-            INNER JOIN books bo ON to_join.book = bo.book
-            LEFT JOIN source_word_info rp_sinf ON to_join.rp_source_id = rp_sinf.id
-            LEFT JOIN source_word_info sinf ON to_join.source_join_id = sinf.id
-            LEFT JOIN parsed_word_info pinf ON sinf.parsed_id = pinf.id
-            LEFT JOIN strongs_info strinf ON pinf.str_num = strinf.str_num
+            FROM parsed_inst
+            INNER JOIN books bo ON parsed_inst.book = bo.book
+            LEFT JOIN std_poly_info spinf ON parsed_inst.final_std_poly_LC = spinf.std_poly_LC
+        ),
+        final_result AS (
+            SELECT * FROM penultimate
+            LEFT JOIN strongs_info strinf ON penultimate.final_str_num = strinf.str_num
         )
         SELECT book, chapter, verse, word_index, total_word_index,
                            
-            source_form, source_form_count,
+            source_form,
                            
             sbl_source_form,
 
-            mono_LC_form, mono_LC_count,
+            mono_LC_form,
                                 
             betacode,
                                 
             pericope_word,
                            
             pericope_betacode,
+                           
+            final_std_poly_LC AS std_poly_LC,
             
-            lemma,
+            word AS lemma,
 
-            str_num,
+            final_str_num AS str_num,
 
-            str_def,
             root_1,
             root_2,
             root_3,
+                           
+            alt_1_str_num,
+            alt_2_str_num,
+                           
+            def AS str_def,
                            
             rp_code,
             rp_alt_code,
@@ -2000,24 +2939,24 @@ def make_word_classification(conn):
 
 def make_test_word_classification(conn):
     df = pd.read_sql_query('''
-        WITH full_peric AS (             
-            SELECT pw.book, pw.chapter, pw.verse, pw.word_index, pw.source_id, pw.word AS peric_word, pw.unicode AS peric_unicode, pm.matched_word_index,
-                           pm.word_order, pm.secondary_word_order
-            FROM pericope_match_info pm
-            LEFT JOIN pericope_words pw
-            ON pm.pericope_id = pw.id
+        WITH full_peric AS (
+                            SELECT pw.book, pw.chapter, pw.verse, pw.word_index, pw.unicode AS peric_word, pw.word AS peric_betacode, pw.std_poly_form AS peric_std_poly_form,
+                                pm.matched_word_index, pm.word_order, pm.secondary_word_order
+                            FROM pericope_match_info pm
+                            LEFT JOIN pericope_words pw
+                            ON pm.pericope_id = pw.id
 
-            UNION
+                            UNION
 
-            SELECT pw.book, pw.chapter, pw.verse, pw.word_index, pw.source_id, pw.word AS peric_word, pw.unicode AS peric_unicode, pm.matched_word_index,
-                    COALESCE(pm.word_order, pw.word_index) AS word_order, COALESCE(pm.secondary_word_order, 1)
-            FROM pericope_words pw
-            LEFT JOIN pericope_match_info pm
-            ON pm.pericope_id = pw.id
+                            SELECT pw.book, pw.chapter, pw.verse, pw.word_index, pw.unicode AS peric_word, pw.word AS peric_betacode, pw.std_poly_form AS peric_std_poly_form,
+                                pm.matched_word_index, COALESCE(pm.word_order, pw.word_index) AS word_order, COALESCE(pm.secondary_word_order, 1) AS secondary_word_order
+                            FROM pericope_words pw
+                            LEFT JOIN pericope_match_info pm
+                            ON pm.pericope_id = pw.id
         ),
         rp_inst AS (
-            SELECT winst.source_id, winst.book, winst.chapter, winst.verse, winst.word_index, winst.total_word_index,
-                    full_peric.source_id AS peric_source_id, full_peric.peric_unicode, full_peric.peric_word, full_peric.matched_word_index,
+            SELECT winst.id, winst.book, winst.chapter, winst.verse, winst.word_index, winst.total_word_index, winst.unicode AS word, winst.word AS betacode,
+                    full_peric.peric_word, full_peric.peric_betacode, full_peric.peric_std_poly_LC, full_peric.matched_word_index,
                            COALESCE(full_peric.word_order, winst.word_index) AS peric_index_order, COALESCE(full_peric.secondary_word_order, 1) AS peric_secondary_index_order
             FROM word_instances winst
             LEFT JOIN
@@ -2026,17 +2965,17 @@ def make_test_word_classification(conn):
                            
             UNION
                            
-            SELECT winst.source_id, COALESCE(winst.book, full_peric.book) AS book, COALESCE(winst.chapter, full_peric.chapter) AS chapter,
-                           COALESCE(winst.verse, full_peric.verse) AS verse, winst.word_index, winst.total_word_index,
-                    full_peric.source_id AS peric_source_id, full_peric.peric_unicode, full_peric.peric_word, full_peric.matched_word_index,
-                           COALESCE(full_peric.word_order, winst.word_index) AS peric_index_order, COALESCE(full_peric.secondary_word_order, 1) AS peric_secondary_index_order
+            SELECT winst.id, COALESCE(winst.book, full_peric.book) AS book, COALESCE(winst.chapter, full_peric.chapter) AS chapter, COALESCE(winst.verse, full_peric.verse) AS verse,
+                           winst.word_index, winst.total_word_index, winst.unicode AS word, winst.word AS betacode, full_peric.peric_word, full_peric.peric_betacode,
+                           full_peric.peric_std_poly_LC, full_peric.matched_word_index, COALESCE(full_peric.word_order, winst.word_index) AS peric_index_order,
+                           COALESCE(full_peric.secondary_word_order, 1) AS peric_secondary_index_order
             FROM full_peric
             LEFT JOIN
             word_instances winst ON
             winst.book = full_peric.book AND winst.chapter = full_peric.chapter AND winst.verse = full_peric.verse AND winst.word_index = full_peric.matched_word_index
         ),
         sbl AS (
-            SELECT sw.source_id AS sbl_source_id, sw.word, sw.book, sw.chapter, sw.verse, sw.word_index, COALESCE(sm.word_order, sw.word_index) AS word_order,
+            SELECT sw.book, sw.chapter, sw.verse, sw.word_index, sw.word AS sbl_word, sw.std_poly_LC AS sbl_std_poly_LC, COALESCE(sm.word_order, sw.word_index) AS word_order,
                            COALESCE(sm.secondary_word_order, 1) AS secondary_word_order, sm.matched_word_index
             FROM sbl_words sw
             LEFT JOIN sbl_match_info sm
@@ -2044,55 +2983,47 @@ def make_test_word_classification(conn):
 
             UNION
 
-            SELECT sw.source_id AS sbl_source_id, sw.word, sw.book, sw.chapter, sw.verse, sw.word_index, sm.word_order, sm.secondary_word_order, sm.matched_word_index
+            SELECT sw.book, sw.chapter, sw.verse, sw.word_index, sw.word AS sbl_word, sw.std_poly_LC AS sbl_std_poly_LC, sm.word_order, sm.secondary_word_order, sm.matched_word_index
             FROM sbl_match_info sm
             LEFT JOIN sbl_words sw
             ON sw.id = sm.sbl_id
         ),
         full_inst AS (
-            SELECT rp_inst.source_id AS rp_source_id, rp_inst.book AS book, rp_inst.chapter AS chapter, rp_inst.verse AS verse, rp_inst.word_index, rp_inst.total_word_index,
-                           rp_inst.peric_source_id, rp_inst.peric_unicode, rp_inst.peric_word, rp_inst.peric_index_order,
-                           rp_inst.peric_secondary_index_order, sbl.sbl_source_id, sbl.word AS sbl_word,
-                           COALESCE(sbl.word_order, rp_inst.word_index, rp_inst.peric_index_order) AS sbl_index_order, 
+            SELECT rp_inst.id AS instance_id, rp_inst.book AS book, rp_inst.chapter AS chapter, rp_inst.verse AS verse, rp_inst.word_index, rp_inst.total_word_index, rp_inst.word,
+                           rp_inst.betacode, rp_inst.peric_word, rp_inst.peric_betacode, sbl.sbl_std_poly_LC, rp_inst.peric_std_poly_LC, rp_inst.peric_index_order,
+                           rp_inst.peric_secondary_index_order, sbl.sbl_word, COALESCE(sbl.word_order, rp_inst.word_index, rp_inst.peric_index_order) AS sbl_index_order, 
                            COALESCE(sbl.secondary_word_order, 1) AS sbl_secondary_index_order FROM rp_inst
             LEFT JOIN sbl ON rp_inst.book = sbl.book AND rp_inst.chapter = sbl.chapter AND rp_inst.verse = sbl.verse AND rp_inst.word_index = sbl.matched_word_index
         
             UNION
         
-            SELECT rp_inst.source_id AS rp_source_id, COALESCE(rp_inst.book, sbl.book) AS book, COALESCE(rp_inst.chapter, sbl.chapter) AS chapter, COALESCE(rp_inst.verse, sbl.verse) AS verse,
-                rp_inst.word_index, rp_inst.total_word_index, rp_inst.peric_source_id, rp_inst.peric_unicode, rp_inst.peric_word,
+            SELECT rp_inst.id AS instance_id, COALESCE(rp_inst.book, sbl.book) AS book, COALESCE(rp_inst.chapter, sbl.chapter) AS chapter, COALESCE(rp_inst.verse, sbl.verse) AS verse,
+                rp_inst.word_index, rp_inst.total_word_index, rp_inst.word, rp_inst.betacode, rp_inst.peric_word, rp_inst.peric_betacode, sbl.sbl_std_poly_LC, rp_inst.peric_std_poly_LC,
                            COALESCE(rp_inst.peric_index_order, rp_inst.word_index) AS peric_index_order,
-                           rp_inst.peric_secondary_index_order, sbl.sbl_source_id, sbl.word AS sbl_word,
+                           rp_inst.peric_secondary_index_order, sbl.sbl_word,
                 COALESCE(sbl.word_order, rp_inst.word_index, rp_inst.peric_index_order) AS sbl_index_order, COALESCE(sbl.secondary_word_order, 1) AS sbl_secondary_index_order FROM sbl
             LEFT JOIN rp_inst ON rp_inst.book = sbl.book AND rp_inst.chapter = sbl.chapter AND rp_inst.verse = sbl.verse AND rp_inst.word_index = sbl.matched_word_index
         ),
-        to_join AS (
-            SELECT *, COALESCE(rp_source_id, sbl_source_id, peric_source_id) AS source_join_id
-            FROM full_inst
-        ),
-        final_result AS (
-            SELECT to_join.book, to_join.chapter, to_join.verse, to_join.word_index, to_join.total_word_index,
+        parsed_inst AS (
+            SELECT full_inst.book, full_inst.chapter, full_inst.verse, full_inst.word_index, full_inst.total_word_index,
                            
-            rp_sinf.unicode AS source_form, rp_sinf.count AS source_form_count,
+            full_inst.word AS source_form,
                            
-            to_join.sbl_word AS sbl_source_form,
+            full_inst.sbl_word AS sbl_source_form,
 
-            pinf.unicode AS mono_LC_form, pinf.count AS mono_LC_count,
+            pinf.unicode AS mono_LC_form,
                                 
-            rp_sinf.word AS betacode,
+            full_inst.betacode,
                                 
-            to_join.peric_unicode AS pericope_word,
+            full_inst.peric_word AS pericope_word,
                            
-            to_join.peric_word AS pericope_betacode,
-            
-            strinf.word AS lemma,
+            full_inst.peric_betacode AS pericope_betacode,
                            
-            pinf.str_num AS str_num,
-            
-            strinf.def AS str_def,
-            strinf.root_1,
-            strinf.root_2,
-            strinf.root_3,
+            pinf.std_poly_form,
+                           
+            COALESCE(pinf.std_poly_LC, full_inst.sbl_std_poly_LC, full_inst.peric_std_poly_LC) AS final_std_poly_LC,
+                           
+            pinf.str_num AS parsed_str_num,
                            
             pinf.rp_code AS rp_code,
             pinf.rp_alt_code AS rp_alt_code,
@@ -2113,63 +3044,78 @@ def make_test_word_classification(conn):
             pinf.rp_kai_crasis AS rp_kai_crasis,
             pinf.rp_attic_greek_form AS rp_attic_greek_form,
             
+            full_inst.sbl_index_order, full_inst.sbl_secondary_index_order,
+            full_inst.peric_index_order, full_inst.peric_secondary_index_order
+                           
+            FROM full_inst
+            LEFT JOIN parsed_word_info pinf ON full_inst.instance_id = pinf.instance_id
+        ),
+        penultimate AS (
+            SELECT parsed_inst.book, parsed_inst.chapter, parsed_inst.verse, parsed_inst.word_index, parsed_inst.total_word_index,
+                           
+            parsed_inst.source_form,
+                           
+            parsed_inst.sbl_source_form,
+
+            parsed_inst.mono_LC_form,
+                                
+            parsed_inst.betacode,
+                                
+            parsed_inst.pericope_word,
+                           
+            parsed_inst.pericope_betacode,
+                           
+            parsed_inst.std_poly_form,
+                           
+            parsed_inst.final_std_poly_LC,
+                           
+            COALESCE(parsed_inst.parsed_str_num, spinf.str_num_1) AS final_str_num,
+                           
+            CASE
+                WHEN parsed_inst.parsed_str_num = spinf.str_num_1 OR parsed_inst.parsed_str_num IS NULL THEN spinf.str_num_2
+                WHEN parsed_inst.parsed_str_num = spinf.str_num_2 THEN spinf.str_num_1
+                ELSE spinf.str_num_1
+            END AS alt_1_str_num,
+
+            CASE
+                WHEN parsed_inst.parsed_str_num = spinf.str_num_2 THEN spinf.str_num_3
+                WHEN parsed_inst.parsed_str_num = spinf.str_num_3 THEN spinf.str_num_2
+                ELSE spinf.str_num_3
+            END AS alt_2_str_num,
+                           
+            parsed_inst.rp_code AS rp_code,
+            parsed_inst.rp_alt_code AS rp_alt_code,
+            parsed_inst.rp_pos AS rp_pos,
+            parsed_inst.rp_gender AS rp_gender,
+            parsed_inst.rp_alt_gender AS rp_alt_gender,
+            parsed_inst.rp_number AS rp_number,
+            parsed_inst.rp_word_case AS rp_word_case,
+            parsed_inst.rp_alt_word_case AS rp_alt_word_case,
+            parsed_inst.rp_tense AS rp_tense,
+            parsed_inst.rp_type AS rp_type,
+            parsed_inst.rp_voice AS rp_voice,
+            parsed_inst.rp_mood AS rp_mood,
+            parsed_inst.rp_alt_mood AS rp_alt_mood,
+            parsed_inst.rp_person AS rp_person,
+            parsed_inst.rp_indeclinable AS rp_indeclinable,
+            parsed_inst.rp_why_indeclinable AS rp_why_indeclinable,
+            parsed_inst.rp_kai_crasis AS rp_kai_crasis,
+            parsed_inst.rp_attic_greek_form AS rp_attic_greek_form,
+                           
             bo.id AS book_id,
             
-            to_join.sbl_index_order, to_join.sbl_secondary_index_order,
-            to_join.peric_index_order, to_join.peric_secondary_index_order
+            parsed_inst.sbl_index_order, parsed_inst.sbl_secondary_index_order,
+            parsed_inst.peric_index_order, parsed_inst.peric_secondary_index_order
                            
-            FROM to_join
-            INNER JOIN books bo ON to_join.book = bo.book
-            LEFT JOIN source_word_info rp_sinf ON to_join.rp_source_id = rp_sinf.id
-            LEFT JOIN source_word_info sinf ON to_join.source_join_id = sinf.id
-            LEFT JOIN parsed_word_info pinf ON sinf.parsed_id = pinf.id
-            LEFT JOIN strongs_info strinf ON pinf.str_num = strinf.str_num
+            FROM parsed_inst
+            INNER JOIN books bo ON parsed_inst.book = bo.book
+            LEFT JOIN std_poly_info spinf ON parsed_inst.final_std_poly_LC = spinf.std_poly_LC
+        ),
+        final_result AS (
+            SELECT * FROM penultimate
+            LEFT JOIN strongs_info strinf ON penultimate.final_str_num = strinf.str_num
         )
-        SELECT book, chapter, verse, word_index, total_word_index,
-                           
-            source_form, source_form_count,
-                           
-            sbl_source_form,
-
-            mono_LC_form, mono_LC_count,
-                                
-            betacode,
-                                
-            pericope_word,
-                           
-            pericope_betacode,
-            
-            lemma,
-
-            str_num,
-
-            str_def,
-            root_1,
-            root_2,
-            root_3,
-                           
-            rp_code,
-            rp_alt_code,
-            rp_pos,  
-            rp_gender,
-            rp_alt_gender,
-            rp_number,
-            rp_word_case,
-            rp_alt_word_case,
-            rp_tense,  
-            rp_type,  
-            rp_voice,  
-            rp_mood,  
-            rp_alt_mood,  
-            rp_person,  
-            rp_indeclinable,  
-            rp_why_indeclinable,  
-            rp_kai_crasis,  
-            rp_attic_greek_form
-                           
-            FROM final_result
-            
-            ORDER BY book_id, chapter, verse, sbl_index_order, sbl_secondary_index_order, peric_index_order, peric_secondary_index_order
+        SELECT * FROM final_result ORDER BY book_id, chapter, verse, sbl_index_order, sbl_secondary_index_order, peric_index_order, peric_secondary_index_order
     ''', conn)
     df.to_csv(Path(__file__).parent / ".." / "output" / "test_word_classification.csv", index=False, encoding="utf-8-sig")
 
@@ -2198,13 +3144,13 @@ def main():
     # make_parsed_word_info(cursor)
     # test_parsed_word_info(conn)
 
-    # test_make_parsed_word_info(cursor)
-
-    # make_parsed_word_info_verification(cursor)
-    # test_parsed_word_info_verification(conn)
-
+    # make_std_poly_info(cursor)
+    # test_std_poly_info(conn)
+    
     # make_strongs_info(cursor)
     # test_strongs_info(conn)
+
+    # test_rp_instances_and_info(conn)
 
     # make_pericope_words(cursor)
     # test_pericope_words(conn)
@@ -2212,10 +3158,23 @@ def main():
     # make_source_verses(cursor)
     # test_source_verses(conn)
 
+    # make_str_num_verses(cursor)
+    # test_str_num_verses(conn)
+
     # make_pericope_match_info(cursor)
     # test_pericope_match_info(conn)
 
+    # make_pericope_match_info_by_str_num(cursor)
+    # test_pericope_match_info_by_str_num(conn)
+
+    # make_optimal_pericope_match_info(cursor)
+    # test_optimal_pericope_match_info(conn)
+
     # test_full_pericope_info(conn)
+    
+    # test_rp_pericope_merge(conn)
+    # test_rp_pericope_merge_by_str_num(conn)
+    # test_rp_pericope_optimal_merge(conn)
     
     # make_sbl_words(cursor)
     # test_sbl_words(conn)
@@ -2223,8 +3182,16 @@ def main():
     # make_sbl_match_info(cursor)
     # test_sbl_match_info(conn)
 
+    # make_sbl_match_info_by_str_num(cursor)
+    # test_sbl_match_info_by_str_num(conn)
+
+    # make_optimal_sbl_match_info(cursor)
+    # test_optimal_sbl_match_info(conn)
+
     # test_full_sbl_info(conn)
     # test_rp_sbl_merge(conn)
+    # test_rp_sbl_merge_by_str_num(conn)
+    test_rp_sbl_optimal_merge(conn)
 
     # make_books(cursor)
     # test_books(conn)
@@ -2236,8 +3203,8 @@ def main():
 
     # make_rp_words_file(conn)
 
-    # TODO: {} variants, change parsed_word_info to account for multiple str_num words, dictionary form to find which str_num for which mono_LC, ask Dad if keep punctuation of words for his reason, 
-    #       add upper case and dictionary form to excel file, final output is 3 files, 1 with all info,
+    # TODO: match by str_num for sbl and pericope, {} variants, ask Dad if keep punctuation of words for his reason, 
+    #       add upper case to excel file, final output is 3 files, 1 with all info,
     #       one with data analytics for rp, and another with data analytics for sblgnt
 
     # Always close the connection
