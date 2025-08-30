@@ -6,4 +6,4 @@ testing/
 
 external_sources/
 
-output/betacode_to_unicode_verification.xlsxWordGuide.db
+output/*.xlsx
