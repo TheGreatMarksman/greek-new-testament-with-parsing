@@ -21,7 +21,7 @@ Columns:
   - betacode: beta code of Byzantine Majority Text word
   - std_poly_LC: standard polytonic (changes grave accents to acute) lowercase form of Byzantine Majority Text word
   - lemma: dictionary form of Byzantine Majority Text word
-  - str_num: Strong's Number for the word; if rp_text is not blank, str_num is what Maurice A. Robinson specified for that word, as seen here: [https://github.com/byztxt/byzantine-majority-text/tree/master/source/Strongs]. Otherwise,     str_num is one of up to three possible Strong's Numbers for that word
+  - str_num: Strong's Number (numbers assigned by James Strong to every root word in the Bible) for the word; if rp_text is not blank, str_num is what Maurice A. Robinson specified for that word, as seen here: [https://github.com/byztxt/byzantine-majority-text/tree/master/source/Strongs]. Otherwise,     str_num is one of up to three possible Strong's Numbers for that word
   - rp_str_num_count: the number of times the Strong's number appears in the Byzantine Majority Text
   - root_1, root_2, root_3: up to three roots for Byzantine Majority Text word
   - alt_1_str_num, alt_2_str_num: up to 2 possible alternate Strong's Numbers
@@ -32,3 +32,16 @@ Columns:
   - rp_pos: Part of Speech of Byzantine Majority Text word
   - rp_why_indeclinable: specifies why Byzantine Majority Text word is indeclinable
   - rp_kai_crasis: specifies if word is a kai crasis, which is when the word "καί" contracts with another word instead of being seperate
+
+
+### Sheet 2 - analytics
+
+- Contains data used to create graphs in the "graphs" sheet
+- First section contains all distinct Strong's Numbers in each book of the Byzantine Majority Text
+- Second section contains all exclusive Strong's Numbers in each book of the Byzantine Majority Text, meaning a Strong's Number that appears in one book, but no others
+- Third section contains the nouns of the Byzantine Majority Text ranked by how frequently they appear
+- Fourth section contains the number of times the Byzantine Majority Text and SBLGNT used the same exact word in each book of the Byzantine Majority Text, as well as that number divided by the number of words in the Byzantine Majority Text to get a percentage of the Byzantine Majority Text words that match to the SBLGNT
+
+### Sheet 3 - graphs
+
+- Contains graphs of the data in the "analytics" sheet
