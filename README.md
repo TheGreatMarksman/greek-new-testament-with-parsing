@@ -11,7 +11,7 @@ This repository compiles and analyzes data from external sources to compare and 
 
 This repository uses data from:
 
-- [byzantine-majority-text](https://github.com/byztxt/byzantine-majority-text).  
+- [byzantine-majority-text](https://github.com/byztxt/byzantine-majority-text)  
   Licensed under [The Unlicense](https://unlicense.org).  
   Full license text can be found in `licenses/UNLICENSE.txt`.
 
@@ -19,7 +19,7 @@ This repository uses data from:
   Licensed under [Creative Commons Attribution 4.0 International (CC BY 4.0)](https://creativecommons.org/licenses/by/4.0/).  
   Full license text can be found in `licenses/CC_BY_4.0.txt`.
 
-- [Matthias Müller](https://www.christthetruth.net/2013/07/15/strongs-goes-excel/)
+- [Matthias Müller](https://www.christthetruth.net/2013/07/15/strongs-goes-excel/)  
   Not licensed - **We do not redistribute the Excel file directly.** 
 
 
