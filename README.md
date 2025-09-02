@@ -24,7 +24,7 @@ This repository uses data from:
 
 
 ## Getting Started
-To see program results:
+To see program results:  
   Open `output/full_word_classification.xlsx`.
 
 To reproduce program results:
