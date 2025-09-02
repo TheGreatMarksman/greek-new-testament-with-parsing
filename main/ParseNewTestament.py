@@ -3478,7 +3478,7 @@ def main():
 
     # make_rp_words_file(conn)
 
-    # TODO: verify by joining with std_poly_info and checking str_nums, {} variants, ask Dad if keep punctuation of words for his reason, 
+    # TODO: {} variants, ask Dad if keep punctuation of words for his reason, 
     #       add upper case to excel file, final output is 3 files, 1 with all info,
     #       one with data analytics for rp, and another with data analytics for sblgnt
 
