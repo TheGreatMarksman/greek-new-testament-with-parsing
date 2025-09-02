@@ -26,5 +26,5 @@ This repository uses data from:
 ## Getting Started
 
 1. Clone the repositories and download the files in Data Sources
-2. Place the folders and files in  (`external_sources`).  
+2. Place the folders and files in  `external_sources`.  
 3. Run `main/ParseNewTestament.py`
