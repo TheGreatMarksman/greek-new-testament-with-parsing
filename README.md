@@ -24,8 +24,11 @@ This repository uses data from:
 
 
 ## Getting Started
+To see program results:
+  Open `output/full_word_classification.xlsx`.
 
-1. Clone this repository
-2. Clone the repositories and download the files in the Data Sources section above
-3. Place the folders and files in  `external_sources`.  
-4. Run `main/ParseNewTestament.py`
+To reproduce program results:
+  1. Clone this repository
+  2. Clone the repositories and download the files in the Data Sources section above
+  3. Place the folders and files in  `external_sources`.  
+  4. Run `main/ParseNewTestament.py`
