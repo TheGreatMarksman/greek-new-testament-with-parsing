@@ -16,8 +16,8 @@ Columns:
   - rp_text: the word as it appears in the Robinson-Pierpont edition of the Greek New Testament in the Original Greek, Byzantine Majority Text
   - sbl_text: the word as it appears in the SBLGNT
   - match?: TRUE if both the Byzantine Majority Text and SBLGNT use the exact same word; FALSE otherwise
-  - mono_LC: monotonic (no accents/diacritics) lowercase Byzantine Majority Text word
-  - uncial: monotonic (no accents/diacritics) uppercase Byzantine Majority Text word
+  - unaccented_LC: monotonic no accents/diacritics lowercase Byzantine Majority Text word
+  - uncial: no accents/diacritics uppercase Byzantine Majority Text word
   - betacode: beta code of Byzantine Majority Text word
   - std_poly_LC: standard polytonic (changes grave accents to acute) lowercase form of Byzantine Majority Text word
   - lemma: dictionary form of Byzantine Majority Text word
