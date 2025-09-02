@@ -4,7 +4,7 @@
 
 ## Description
 
-This repository compiles and analyzes data from external sources to compare and classify the Byzantine Majority Text and SBLGNT editions of the Greek New Testament. The culmination of the program's findings is available in `output/full_word_classification.xlsx`, which contains a side-by-side comparison of the words from the Byzantine Majority Text and SBLGNT, as well as the Strong's Number, Strong's definition, and parsing codes for the Byzantine Majority Text. The results have not been verified by a human - please submit any errors you find here: [Issues](https://github.com/TheGreatMarksman/new-testament-word-classification/issues).
+This repository compiles and analyzes data from external sources to compare and classify the Byzantine Majority Text and SBLGNT editions of the Greek New Testament. The culmination of the program's findings is available in `output/full_word_classification.xlsx`, which contains a side-by-side comparison of the words from the Byzantine Majority Text and SBLGNT, as well as the Strong's Number, Strong's definition, and parsing codes for the Byzantine Majority Text. The results have not been verified by a human - please submit any errors you find [here](https://github.com/TheGreatMarksman/new-testament-word-classification/issues).
 
 
 ## Data Sources
