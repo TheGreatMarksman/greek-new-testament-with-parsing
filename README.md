@@ -20,7 +20,7 @@ This repository uses data from:
   Full license text can be found in `licenses/CC_BY_4.0.txt`.
 
 - [Matthias Müller](https://www.christthetruth.net/2013/07/15/strongs-goes-excel/)  
-  Not licensed - **We do not redistribute the Excel file directly.** 
+  Freely available at the link provided.
 
 
 ## Getting Started
