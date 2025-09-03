@@ -1,1 +1,0 @@
-01.01 biblos 976 {N-NSF} genesews 1078 {N-GSF} ihsou 2424 {N-GSM} xristou 5547 {N-GSM} uiou 5207 {N-GSM} dauid 1138 {N-PRI} uiou 5207 {N-GSM} abraam 11 {N-PRI}

@@ -1,1 +1,0 @@
-13.23 ginwskete 1097 {V-PAI-2P} 1097 {V-PAM-2P} ton 3588 {T-ASM} adelfon 80 {N-ASM} timoqeon 5095 {N-ASM} apolelumenon 630 {V-RPP-ASM} meq 3326 {PREP} ou 3739 {R-GSM} ean 1437 {COND} taxion 5032 {ADV-C} erxhtai 2064 {V-PNS-3S} oyomai 3708 {V-FDI-1S} umas 4771 {P-2AP}
