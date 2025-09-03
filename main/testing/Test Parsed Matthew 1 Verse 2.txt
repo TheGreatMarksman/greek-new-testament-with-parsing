@@ -1,1 +1,0 @@
-01.02 abraam 11 {N-PRI} egennhsen 1080 {V-AAI-3S} ton 3588 {T-ASM} isaak 2464 {N-PRI} isaak 2464 {N-PRI} de 1161 {CONJ} egennhsen 1080 {V-AAI-3S} ton 3588 {T-ASM} iakwb 2384 {N-PRI} iakwb 2384 {N-PRI} de 1161 {CONJ} egennhsen 1080 {V-AAI-3S} ton 3588 {T-ASM} ioudan 2455 {N-ASM} kai 2532 {CONJ} tous 3588 {T-APM} adelfous 80 {N-APM} autou 846 {P-GSM}
