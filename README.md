@@ -4,7 +4,7 @@
 
 ## Description
 
-This repository compiles and analyzes data from external sources to list the words and parsing information of the Greek New Testament and compares the words of the Byzantine Majority Text and SBLGNT editions. The culmination of the program's findings is available in `greek-new-testament-with-parsing/greek_new_testament_with_parsing.xlsx`, which contains the Strong's Numbers, Strong's definitions, and parsing codes for the Byzantine Majority Text, as well as a side-by-side comparison of the words from the SBLGNT. The results have not been verified by a human - please submit any errors you find [here](https://github.com/TheGreatMarksman/greek-new-testament-with-parsing/issues).
+This repository compiles and analyzes data from external sources to list the words and parsing information of the Greek New Testament and to compare the words of the Byzantine Majority Text and SBLGNT editions. The culmination of the program's findings is available in `greek-new-testament-with-parsing/greek_new_testament_with_parsing.xlsx`, which contains the Strong's Numbers, Strong's definitions, and parsing codes for the Byzantine Majority Text, as well as a side-by-side comparison of the words from the SBLGNT. The results have not been verified by a human - please submit any errors you find [here](https://github.com/TheGreatMarksman/greek-new-testament-with-parsing/issues).
 
 
 ## Data Sources
