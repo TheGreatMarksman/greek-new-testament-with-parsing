@@ -6,11 +6,6 @@ import pandas as pd
 from pathlib import Path
 import os
 
-# GitHub Repo for Robinson-Pierpont files: https://github.com/byztxt/byzantine-majority-text
-# GitHub Repo for SBLGNT files: https://github.com/LogosBible/SBLGNT
-# Link to the grammar tables: https://en.wiktionary.org/wiki/Appendix:Ancient_Greek_grammar_tables
-# Used info from https://en.wikipedia.org/wiki/Beta_Code
-
 
 # GLOBALS
 
@@ -2881,229 +2876,6 @@ def make_rp_words_file(conn):
     ''', conn)
     df.to_csv(Path(__file__).parent / ".." / "output" / "rp_words.csv", index=False, encoding="utf-8-sig")
 
-# WITH full_peric AS (
-#                             SELECT pw.book, pw.chapter, pw.verse, pw.word_index, pw.unicode AS peric_word, pw.word AS peric_betacode, pw.std_poly_LC AS peric_std_poly_LC,
-#                                 pm.matched_word_index, pm.word_order, pm.secondary_word_order
-#                             FROM pericope_match_info pm
-#                             LEFT JOIN pericope_words pw
-#                             ON pm.pericope_id = pw.id
-
-#                             UNION
-
-#                             SELECT pw.book, pw.chapter, pw.verse, pw.word_index, pw.unicode AS peric_word, pw.word AS peric_betacode, pw.std_poly_LC AS peric_std_poly_LC,
-#                                 pm.matched_word_index, COALESCE(pm.word_order, pw.word_index) AS word_order, COALESCE(pm.secondary_word_order, 1) AS secondary_word_order
-#                             FROM pericope_words pw
-#                             LEFT JOIN pericope_match_info pm
-#                             ON pm.pericope_id = pw.id
-#         ),
-#         rp_inst AS (
-#             SELECT winst.id, winst.book, winst.chapter, winst.verse, winst.word_index, winst.total_word_index, winst.unicode AS word, winst.word AS betacode,
-#                     full_peric.peric_word, full_peric.peric_betacode, full_peric.peric_std_poly_LC, full_peric.matched_word_index,
-#                            COALESCE(full_peric.word_order, winst.word_index) AS peric_index_order, COALESCE(full_peric.secondary_word_order, 1) AS peric_secondary_index_order
-#             FROM word_instances winst
-#             LEFT JOIN
-#             full_peric ON
-#             winst.book = full_peric.book AND winst.chapter = full_peric.chapter AND winst.verse = full_peric.verse AND winst.word_index = full_peric.matched_word_index
-                           
-#             UNION
-                           
-#             SELECT winst.id, COALESCE(winst.book, full_peric.book) AS book, COALESCE(winst.chapter, full_peric.chapter) AS chapter, COALESCE(winst.verse, full_peric.verse) AS verse,
-#                            winst.word_index, winst.total_word_index, winst.unicode AS word, winst.word AS betacode, full_peric.peric_word, full_peric.peric_betacode,
-#                            full_peric.peric_std_poly_LC, full_peric.matched_word_index, COALESCE(full_peric.word_order, winst.word_index) AS peric_index_order,
-#                            COALESCE(full_peric.secondary_word_order, 1) AS peric_secondary_index_order
-#             FROM full_peric
-#             LEFT JOIN
-#             word_instances winst ON
-#             winst.book = full_peric.book AND winst.chapter = full_peric.chapter AND winst.verse = full_peric.verse AND winst.word_index = full_peric.matched_word_index
-#         ),
-#         sbl AS (
-#             SELECT sw.book, sw.chapter, sw.verse, sw.word_index, sw.word AS sbl_word, sw.std_poly_LC AS sbl_std_poly_LC, COALESCE(sm.word_order, sw.word_index) AS word_order,
-#                            COALESCE(sm.secondary_word_order, 1) AS secondary_word_order, sm.matched_word_index
-#             FROM sbl_words sw
-#             LEFT JOIN sbl_match_info sm
-#             ON sw.id = sm.sbl_id
-
-#             UNION
-
-#             SELECT sw.book, sw.chapter, sw.verse, sw.word_index, sw.word AS sbl_word, sw.std_poly_LC AS sbl_std_poly_LC, sm.word_order, sm.secondary_word_order, sm.matched_word_index
-#             FROM sbl_match_info sm
-#             LEFT JOIN sbl_words sw
-#             ON sw.id = sm.sbl_id
-#         ),
-#         full_inst AS (
-#             SELECT rp_inst.id AS instance_id, rp_inst.book AS book, rp_inst.chapter AS chapter, rp_inst.verse AS verse, rp_inst.word_index, rp_inst.total_word_index, rp_inst.word,
-#                            rp_inst.betacode, rp_inst.peric_word, rp_inst.peric_betacode, sbl.sbl_std_poly_LC, rp_inst.peric_std_poly_LC, rp_inst.peric_index_order,
-#                            rp_inst.peric_secondary_index_order, sbl.sbl_word, COALESCE(sbl.word_order, rp_inst.word_index, rp_inst.peric_index_order) AS sbl_index_order, 
-#                            COALESCE(sbl.secondary_word_order, 1) AS sbl_secondary_index_order FROM rp_inst
-#             LEFT JOIN sbl ON rp_inst.book = sbl.book AND rp_inst.chapter = sbl.chapter AND rp_inst.verse = sbl.verse AND rp_inst.word_index = sbl.matched_word_index
-        
-#             UNION
-        
-#             SELECT rp_inst.id AS instance_id, COALESCE(rp_inst.book, sbl.book) AS book, COALESCE(rp_inst.chapter, sbl.chapter) AS chapter, COALESCE(rp_inst.verse, sbl.verse) AS verse,
-#                 rp_inst.word_index, rp_inst.total_word_index, rp_inst.word, rp_inst.betacode, rp_inst.peric_word, rp_inst.peric_betacode, sbl.sbl_std_poly_LC,
-#                            rp_inst.peric_std_poly_LC, COALESCE(rp_inst.peric_index_order, rp_inst.word_index) AS peric_index_order,
-#                            rp_inst.peric_secondary_index_order, sbl.sbl_word,
-#                 COALESCE(sbl.word_order, rp_inst.word_index, rp_inst.peric_index_order) AS sbl_index_order, COALESCE(sbl.secondary_word_order, 1) AS sbl_secondary_index_order FROM sbl
-#             LEFT JOIN rp_inst ON rp_inst.book = sbl.book AND rp_inst.chapter = sbl.chapter AND rp_inst.verse = sbl.verse AND rp_inst.word_index = sbl.matched_word_index
-#         ),
-#         parsed_inst AS (
-#             SELECT full_inst.book, full_inst.chapter, full_inst.verse, full_inst.word_index, full_inst.total_word_index,
-                           
-#             full_inst.word AS source_form,
-                           
-#             full_inst.sbl_word AS sbl_source_form,
-
-#             pinf.unicode AS mono_LC_form,
-                                
-#             full_inst.betacode,
-                                
-#             full_inst.peric_word AS pericope_word,
-                           
-#             full_inst.peric_betacode AS pericope_betacode,
-                           
-#             COALESCE(pinf.std_poly_LC, full_inst.sbl_std_poly_LC, full_inst.peric_std_poly_LC) AS final_std_poly_LC,
-                           
-#             pinf.str_num AS parsed_str_num,
-                           
-#             pinf.rp_code AS rp_code,
-#             pinf.rp_alt_code AS rp_alt_code,
-#             pinf.rp_pos AS rp_pos,
-#             pinf.rp_gender AS rp_gender,
-#             pinf.rp_alt_gender AS rp_alt_gender,
-#             pinf.rp_number AS rp_number,
-#             pinf.rp_word_case AS rp_word_case,
-#             pinf.rp_alt_word_case AS rp_alt_word_case,
-#             pinf.rp_tense AS rp_tense,
-#             pinf.rp_type AS rp_type,
-#             pinf.rp_voice AS rp_voice,
-#             pinf.rp_mood AS rp_mood,
-#             pinf.rp_alt_mood AS rp_alt_mood,
-#             pinf.rp_person AS rp_person,
-#             pinf.rp_indeclinable AS rp_indeclinable,
-#             pinf.rp_why_indeclinable AS rp_why_indeclinable,
-#             pinf.rp_kai_crasis AS rp_kai_crasis,
-#             pinf.rp_attic_greek_form AS rp_attic_greek_form,
-            
-#             full_inst.sbl_index_order, full_inst.sbl_secondary_index_order,
-#             full_inst.peric_index_order, full_inst.peric_secondary_index_order
-                           
-#             FROM full_inst
-#             LEFT JOIN parsed_word_info pinf ON full_inst.instance_id = pinf.instance_id
-#         ),
-#         penultimate AS (
-#             SELECT parsed_inst.book, parsed_inst.chapter, parsed_inst.verse, parsed_inst.word_index, parsed_inst.total_word_index,
-                           
-#             parsed_inst.source_form,
-                           
-#             parsed_inst.sbl_source_form,
-
-#             parsed_inst.mono_LC_form,
-                                
-#             parsed_inst.betacode,
-                                
-#             parsed_inst.pericope_word,
-                           
-#             parsed_inst.pericope_betacode,
-                           
-#             parsed_inst.final_std_poly_LC,
-                           
-#             COALESCE(parsed_inst.parsed_str_num, spinf.str_num_1) AS final_str_num,
-                           
-#             CASE
-#                 WHEN parsed_inst.parsed_str_num = spinf.str_num_1 OR parsed_inst.parsed_str_num IS NULL THEN spinf.str_num_2
-#                 WHEN parsed_inst.parsed_str_num = spinf.str_num_2 THEN spinf.str_num_1
-#                 ELSE spinf.str_num_1
-#             END AS alt_1_str_num,
-
-#             CASE
-#                 WHEN parsed_inst.parsed_str_num = spinf.str_num_2 THEN spinf.str_num_3
-#                 WHEN parsed_inst.parsed_str_num = spinf.str_num_3 THEN spinf.str_num_2
-#                 ELSE spinf.str_num_3
-#             END AS alt_2_str_num,
-                           
-#             parsed_inst.rp_code AS rp_code,
-#             parsed_inst.rp_alt_code AS rp_alt_code,
-#             parsed_inst.rp_pos AS rp_pos,
-#             parsed_inst.rp_gender AS rp_gender,
-#             parsed_inst.rp_alt_gender AS rp_alt_gender,
-#             parsed_inst.rp_number AS rp_number,
-#             parsed_inst.rp_word_case AS rp_word_case,
-#             parsed_inst.rp_alt_word_case AS rp_alt_word_case,
-#             parsed_inst.rp_tense AS rp_tense,
-#             parsed_inst.rp_type AS rp_type,
-#             parsed_inst.rp_voice AS rp_voice,
-#             parsed_inst.rp_mood AS rp_mood,
-#             parsed_inst.rp_alt_mood AS rp_alt_mood,
-#             parsed_inst.rp_person AS rp_person,
-#             parsed_inst.rp_indeclinable AS rp_indeclinable,
-#             parsed_inst.rp_why_indeclinable AS rp_why_indeclinable,
-#             parsed_inst.rp_kai_crasis AS rp_kai_crasis,
-#             parsed_inst.rp_attic_greek_form AS rp_attic_greek_form,
-                           
-#             bo.id AS book_id,
-            
-#             parsed_inst.sbl_index_order, parsed_inst.sbl_secondary_index_order,
-#             parsed_inst.peric_index_order, parsed_inst.peric_secondary_index_order
-                           
-#             FROM parsed_inst
-#             INNER JOIN books bo ON parsed_inst.book = bo.book
-#             LEFT JOIN std_poly_info spinf ON parsed_inst.final_std_poly_LC = spinf.std_poly_LC
-#         ),
-#         final_result AS (
-#             SELECT * FROM penultimate
-#             LEFT JOIN strongs_info strinf ON penultimate.final_str_num = strinf.str_num
-#         )
-#         SELECT book, chapter, verse, word_index, total_word_index,
-                           
-#             source_form,
-                           
-#             sbl_source_form,
-
-#             mono_LC_form,
-                                
-#             betacode,
-                                
-#             pericope_word,
-                           
-#             pericope_betacode,
-                           
-#             final_std_poly_LC AS std_poly_LC,
-            
-#             word AS lemma,
-
-#             final_str_num AS str_num,
-
-#             root_1,
-#             root_2,
-#             root_3,
-                           
-#             alt_1_str_num,
-#             alt_2_str_num,
-                           
-#             def AS str_def,
-                           
-#             rp_code,
-#             rp_alt_code,
-#             rp_pos,  
-#             rp_gender,
-#             rp_alt_gender,
-#             rp_number,
-#             rp_word_case,
-#             rp_alt_word_case,
-#             rp_tense,  
-#             rp_type,  
-#             rp_voice,  
-#             rp_mood,  
-#             rp_alt_mood,  
-#             rp_person,  
-#             rp_indeclinable,  
-#             rp_why_indeclinable,  
-#             rp_kai_crasis,  
-#             rp_attic_greek_form
-                           
-#             FROM final_result
-            
-#             ORDER BY book_id, chapter, verse, sbl_index_order, sbl_secondary_index_order, peric_index_order, peric_secondary_index_order
 
 def make_word_classification(conn):
     df = pd.read_sql_query('''
@@ -3389,30 +3161,30 @@ def main():
     conn = sqlite3.connect(Path(__file__).parent / ".." / "WordGuide.db")
     cursor = conn.cursor()
 
-    # make_betacode_bible(cursor)
+    make_betacode_bible(cursor)
     # test_betacode_bible(conn)
 
-    # make_unicode_bible(cursor)
+    make_unicode_bible(cursor)
     # test_unicode_bible(conn)
 
     # make_external_unicode_bible(cursor)
     # test_external_unicode_bible(conn)
 
-    # make_long_trait_codes()
+    make_long_trait_codes()
 
     # make_old_source_word_info(cursor)
     # test_old_source_word_info(conn)
 
-    # make_word_instances(cursor)
+    make_word_instances(cursor)
     # test_word_instances(conn)
 
-    # make_parsed_word_info(cursor)
+    make_parsed_word_info(cursor)
     # test_parsed_word_info(conn)
 
-    # make_std_poly_info(cursor)
+    make_std_poly_info(cursor)
     # test_std_poly_info(conn)
     
-    # make_strongs_info(cursor)
+    make_strongs_info(cursor)
     # test_strongs_info(conn)
 
     # test_rp_instances_and_info(conn)
@@ -3420,10 +3192,10 @@ def main():
     # make_pericope_words(cursor)
     # test_pericope_words(conn)
 
-    # make_source_verses(cursor)
+    make_source_verses(cursor)
     # test_source_verses(conn)
 
-    # make_str_num_verses(cursor)
+    make_str_num_verses(cursor)
     # test_str_num_verses(conn)
 
     # make_pericope_match_info(cursor)
@@ -3441,10 +3213,10 @@ def main():
     # test_rp_pericope_merge_by_str_num(conn)
     # test_rp_pericope_optimal_merge(conn)
     
-    # make_sbl_words(cursor)
+    make_sbl_words(cursor)
     # test_sbl_words(conn)
 
-    # make_word_orders(cursor)
+    make_word_orders(cursor)
     # test_instance_word_order(conn)
     # test_sbl_word_order(conn)
 
@@ -3468,19 +3240,11 @@ def main():
     # test_rp_sbl_merge_by_str_num(conn)
     # test_rp_sbl_optimal_merge(conn)
 
-    # make_books(cursor)
+    make_books(cursor)
     # test_books(conn)
     
     # make_test_word_classification(conn)
     make_word_classification(conn)
-
-    # test_join(conn)
-
-    # make_rp_words_file(conn)
-
-    # TODO: {} variants, ask Dad if keep punctuation of words for his reason, 
-    #       add upper case to excel file, final output is 3 files, 1 with all info,
-    #       one with data analytics for rp, and another with data analytics for sblgnt
 
     # Always close the connection
     conn.commit()
