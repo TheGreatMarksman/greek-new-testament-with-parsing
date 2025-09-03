@@ -1,10 +1,10 @@
 
 
-# Grammatically Parsed Greek New Testament
+# Greek New Testament With Parsing
 
 ## Description
 
-This repository compiles and analyzes data from external sources to compare and classify the Byzantine Majority Text and SBLGNT editions of the Greek New Testament. The culmination of the program's findings is available in `output/full_word_classification.xlsx`, which contains a side-by-side comparison of the words from the Byzantine Majority Text and SBLGNT, as well as the Strong's Number, Strong's definition, and parsing codes for the Byzantine Majority Text. The results have not been verified by a human - please submit any errors you find [here](https://github.com/TheGreatMarksman/new-testament-word-classification/issues).
+This repository compiles and analyzes data from external sources to list the words and parsing information of the Greek New Testament and compares the words of the Byzantine Majority Text and SBLGNT editions. The culmination of the program's findings is available in `greek-new-testament-with-parsing/greek_new_testament_with_parsing.xlsx`, which contains the Strong's Numbers, Strong's definitions, and parsing codes for the Byzantine Majority Text, as well as a side-by-side comparison of the words from the SBLGNT. The results have not been verified by a human - please submit any errors you find [here](https://github.com/TheGreatMarksman/greek-new-testament-with-parsing/issues).
 
 
 ## Data Sources
@@ -25,7 +25,7 @@ This repository uses data from:
 
 ## Getting Started
 To see program results:  
-  - Open `output/full_word_classification.xlsx`.
+  - Open `greek-new-testament-with-parsing/greek_new_testament_with_parsing.xlsx`.
 
 
 To reproduce program results:
