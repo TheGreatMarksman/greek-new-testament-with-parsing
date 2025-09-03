@@ -1,7 +1,6 @@
-# Output
+# Greek New Testament With Parsing
 
-This program contains several output files, most of which are the .csv files of the SQL tables used in the program. The files which require further explanation are described below:
-
+This folder contains `greek_new_testament_with_parsing.xlsx` the main findings of the program.
 
 ## full_word_classification.xlsx
 
