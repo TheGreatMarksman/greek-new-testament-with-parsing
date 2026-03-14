@@ -1,5 +1,5 @@
 async function loadCSV() {
-  const response = await fetch("../greek_new_testament_with_parsing/greek_new_testament_with_parsing.csv");
+  const response = await fetch("/greek_new_testament_with_parsing/greek_new_testament_with_parsing.csv");
   console.log("Fetch response:", response);
   const text = await response.text();
   console.log("CSV text:", text);
