@@ -1,6 +1,8 @@
 async function loadCSV() {
   const response = await fetch("../greek_new_testament_with_parsing/greek_new_testament_with_parsing.csv");
+  console.log("Fetch response:", response);
   const text = await response.text();
+  console.log("CSV text:", text);
 
   const rows = text.trim().split("\n").map(r => r.split(","));
 
@@ -19,7 +21,7 @@ async function loadCSV() {
     .join("");
 
   // Activate DataTables
-  $("#csvTable").DataTable({
+  $("#csvTable").DataTable({ 
     pageLength: 25,
     responsive: true
   });
