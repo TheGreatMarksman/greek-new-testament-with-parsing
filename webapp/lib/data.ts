@@ -2,23 +2,22 @@ import fs from "fs";
 import path from "path";
 import { parse } from "csv-parse/sync";
 
-export function getData() {
-    const filePath = path.join(
-        process.cwd(),
-        "data",
-        "word_classification.csv"
-    );
+const filePath = path.join(process.cwd(), "data", "word_classification.csv");
 
-    const fileContent = fs.readFileSync(
-        filePath,
-        "utf-8"
-    );
+let cachedData: Record<string, string>[] | null = null;
 
-    const records = parse(fileContent, {
+export function getData(): Record<string, string>[] {
+    if (cachedData) {
+        return cachedData;
+    }
+
+    const fileContent = fs.readFileSync(filePath, "utf-8");
+
+    cachedData = parse(fileContent, {
         columns: true,
         skip_empty_lines: true,
-        bom:true
+        bom: true,
     });
 
-    return records;
+    return cachedData;
 }

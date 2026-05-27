@@ -1,3 +1,4 @@
+{/*
 export default function HomePage() {
     return (
         <main className="p-8">
@@ -5,14 +6,15 @@ export default function HomePage() {
         </main>
     );
 }
-
-{/*
+*/}
+//{/*
 
 import { getData } from "@/lib/data";
 
 type CSVRow = Record<string, string>;
 
 export default function HomePage() {
+    //const data = getData() as CSVRow[];
     const data = getData() as CSVRow[];
 
     return (
@@ -25,8 +27,7 @@ export default function HomePage() {
                 {data.map((row, index) => (
                     <div
                         key={index}
-                        className="border p-4 rounded"
-                    >
+                        className="border p-4 rounded">
                         {Object.entries(row).map(
                             ([key, value]) => (
                                 <div key={key}>
@@ -41,4 +42,4 @@ export default function HomePage() {
         </main>
     );
 }
-*/}
+//*/}
