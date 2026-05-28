@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { Eye, EyeOff, X, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Notebook, NotebookPen } from "lucide-react";
 
 type CSVRow = Record<string, string>;
 
@@ -56,6 +57,8 @@ export default function CsvClient({ data }: { data: CSVRow[] }) {
         "rp_kai_crasis",
         "rp_attic_greek_form",
     ]);
+
+    const [showColumnControls, setShowColumnControls] = useState(false);
 
     const formatValue = (v: string) => {
         if (!v) return "";
@@ -150,27 +153,55 @@ export default function CsvClient({ data }: { data: CSVRow[] }) {
 
     return (
         <div className="p-4 space-y-4">
-            <input
-                className="border p-2 w-full max-w-md"
-                placeholder="Search..."
-                value={search}
-                onChange={(e) => {
-                    setSearch(e.target.value);
-                    setPage(0);
-                }}
-            />
-            <div className="flex flex-wrap gap-2">
-                {hiddenColumns.map((col) => (
-                    <button
-                        key={col}
-                        onClick={() => toggleColumn(col)}
-                        //className="border px-2 py-1 text-sm"
-                        className={`${buttonBase} ${buttonGray}`}
-                    >
-                        Show {col}
-                    </button>
-                ))}
+            {/* <h1 className="text-4xl font-bold tracking-tight">
+                Greek New Testament With Parsing
+            </h1> */}
+            <div className="border-b pb-4 mb-4 text-center">
+                <h1 className="text-4xl font-bold tracking-tight">
+                    Greek New Testament With Parsing
+                </h1>
+
+                <p className="text-gray-600 mt-1">
+                    Interactive parsing and morphology viewer
+                </p>
             </div>
+            <div className="flex gap-2 items-center">
+                <input
+                    className="border p-2 w-full max-w-md"
+                    placeholder="Search..."
+                    value={search}
+                    onChange={(e) => {
+                        setSearch(e.target.value);
+                        setPage(0);
+                    }}
+                />
+                <button
+                    onClick={() =>
+                        setShowColumnControls((v) => !v)
+                    }
+                    className="p-2 rounded bg-gray-200 hover:bg-gray-300"
+                    title={showColumnControls ? "Normal View" : "Editor View"}
+                >
+                    {showColumnControls ? <Notebook size={20}/> : <NotebookPen size={20}/>}
+                </button>
+            </div>
+            {showColumnControls && (
+                <div className="flex flex-wrap gap-2">
+                    {hiddenColumns.map((col) => (
+                        <button
+                            key={col}
+                            onClick={() => toggleColumn(col)}
+                            //className="border px-2 py-1 text-sm"
+                            //className={`${buttonBase} ${buttonGray}`}
+                            className="p-1 rounded bg-gray-200 hover:bg-gray-400 flex items-center gap-1"
+                            title="Show column"
+                        >
+                            <Eye size={16} />
+                            <span className="text-xs">{col}</span>
+                        </button>
+                    ))}
+                </div>
+            )}
             <div className="border overflow-auto max-h-[70vh]">
                 <table className="min-w-full text-sm">
                     <thead className="bg-gray-100 sticky top-0">
@@ -180,14 +211,16 @@ export default function CsvClient({ data }: { data: CSVRow[] }) {
                                 .map((col) => (
                                     <th key={col} className="p-2 border">
                                         <div className="flex items-center gap-2">
-                                            <span>{col}</span>
-
-                                            <button
-                                                onClick={() => toggleColumn(col)}
-                                                className="text-xs border px-1 hover:bg-gray-200"
-                                            >
-                                                Hide
-                                            </button>
+                                            <span>{col}</span>  
+                                            {showColumnControls && (
+                                                <button
+                                                    onClick={() => toggleColumn(col)}
+                                                    className="p-1 rounded hover:bg-gray-200"
+                                                    title="Hide column"
+                                                >
+                                                    <EyeOff size={16} />
+                                                </button>
+                                            )}
                                         </div>
 
                                         <select
@@ -198,7 +231,7 @@ export default function CsvClient({ data }: { data: CSVRow[] }) {
                                                     [col]: e.target.value || null,
                                                 }))
                                             }
-                                            className="text-xs border mt-1"
+                                            className="text-xs border mt-1 hover:bg-gray-300"
                                         >
                                             <option value="">All</option>
 
@@ -262,8 +295,9 @@ export default function CsvClient({ data }: { data: CSVRow[] }) {
                     <button
                         onClick={() => setSelectedRow(null)}
                         className={`${buttonBase} ${buttonGray}`}
+                        title="Close"
                     >
-                        Close
+                        <X size={18} />
                     </button>
                     <h2 className="font-bold mb-2">
                         Row Details
@@ -278,7 +312,7 @@ export default function CsvClient({ data }: { data: CSVRow[] }) {
                             .map((col) => (
                                 <div key={col}>
                                     <strong>{col}:</strong>{" "}
-                                    {String(selectedRow[col])}
+                                    {formatValue(String(selectedRow[col] ?? ""))}
                                 </div>
                             ))
                         }
@@ -288,11 +322,19 @@ export default function CsvClient({ data }: { data: CSVRow[] }) {
 
             <div className="flex gap-2 items-center">
                 <button
+                    onClick={() => setPage(0)}
+                    disabled={page === 0}
+                    className="p-1 rounded bg-gray-200 hover:bg-gray-300 disabled:opacity-50"
+                >
+                    <ChevronsLeft size={18} />
+                </button>
+                <button
                     onClick={() => setPage((p) => Math.max(p - 1, 0))}
                     disabled={page === 0}
-                    className={`${buttonBase} ${buttonGray}`}
+                    //className={`${buttonBase} ${buttonGray}`}
+                    className="p-1 rounded bg-gray-200 hover:bg-gray-300 disabled:opacity-50"
                 >
-                    Prev
+                    <ChevronLeft size={18} />
                 </button>
 
                 <span>
@@ -304,9 +346,18 @@ export default function CsvClient({ data }: { data: CSVRow[] }) {
                         setPage((p) => Math.min(p + 1, totalPages - 1))
                     }
                     disabled={page >= totalPages - 1}
-                    className={`${buttonBase} ${buttonGray}`}
+                    //className={`${buttonBase} ${buttonGray}`}
+                    className="p-1 rounded bg-gray-200 hover:bg-gray-300 disabled:opacity-50"
                 >
-                    Next
+                    <ChevronRight size={18} />
+                </button>
+
+                <button
+                    onClick={() => setPage(totalPages - 1)}
+                    disabled={page >= totalPages - 1}
+                    className="p-1 rounded bg-gray-200 hover:bg-gray-300 disabled:opacity-50"
+                >
+                    <ChevronsRight size={18} />
                 </button>
             </div>
         </div>
