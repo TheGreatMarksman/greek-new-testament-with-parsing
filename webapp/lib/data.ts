@@ -17,6 +17,7 @@ export function getData(): Record<string, string>[] {
         columns: true,
         skip_empty_lines: true,
         bom: true,
+        cast: false,
     });
 
     return cachedData;
